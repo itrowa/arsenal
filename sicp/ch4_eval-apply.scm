@@ -1,9 +1,10 @@
-(define (eval exp env)
+
+(define (eval/my exp env)
   (cond ((self-evaluating? exp) exp)
         ((variable? exp) (lookup-variable-value exp env))
         ((quoted? exp) (text-of-quotation exp))
         ((assignment? exp) (eval-assignment exp env))
-        ((definition exp) (eval-definition exp env))
+        ((definition? exp) (eval-definition exp env))
         ((if? exp) (eval-if exp env))
         ((lambda? exp)
          (make-procedure (lambda-parameters exp)
@@ -13,12 +14,12 @@
          (eval-sequence (begin-actions exp) env))
         ((cond? exp) (eval (cond->if exp) env))
         ((application? exp)
-         (apply (eval (operator exp) env)
+         (apply/my (eval (operator exp) env)
                 (list-of-values (operands exp) env)))
         (else
           (error "Unknown expression type -- EVAL" exp))))
 
-(define (apply procedure arguments)
+(define (apply/my procedure arguments)
   (cond ((primitive-procedure? procedure)
          (apply-primitive-proceduree proceduree arguments))
         ((compound-procedure? procedure)
@@ -33,31 +34,31 @@
 (define (list-of-values exps env)
   (if (no-operands? exps)
     '()
-    (cons (eval (first-operand exps) env)
+    (cons (eval/my (first-operand exps) env)
           (list-of-values (rest-operands exps) env))))
 
 ;; 条件
 (define (eval-if exp env)
-  (if (true? (eval (if-predicate exp) env))
-      (eval (if-consequent exp) env)
-      (eval (if-alternative exp) env)))
+  (if (true? (eval/my (if-predicate exp) env))
+      (eval/my (if-consequent exp) env)
+      (eval/my (if-alternative exp) env)))
 
 ;; 序列
 (define (eval-sequence exps env)
-  (cond ((last-exp? exps) (eval (first-exp exps) env))
-        (else (eval (first-exp exps) env)
+  (cond ((last-exp? exps) (eval/my (first-exp exps) env))
+        (else (eval/my (first-exp exps) env)
               (eval-sequence (rest-exps exps) env))))
 
 ;; 赋值和定义
 (define (eval-assignment exp env)
   (set-variable-value! (assignment-variable exp)
-                       (eval (assignment-value exp) env)
+                       (eval/my (assignment-value exp) env)
                        env)
   'ok)
 
 (define (eval-definition exp env)
   (define-variable! (definition-variable exp)
-                    (eval (assignment-value exp) env)
+                    (eval/my (assignment-value exp) env)
                     env)
   'ok)
 
@@ -67,7 +68,7 @@
 (define (self-evaluating? exp)
   (cond ((number? exp) #t)
         ((string? exp) #t)
-        (else false)))
+        (else #f)))
 
 ;; 变量的形式:
 (define (variable? exp) (symbol? exp))
@@ -156,4 +157,173 @@
 
 (define (expand-clauses clauses)
   (if (null? clauses)
-      øø(因øøøø
+      'false
+      (let ((first (car clauses))
+            (rest (cdr clauses)))
+        (if (cond-else-clause? first)
+            (if (null? rest)
+              (sequence->exp (cond-actions first))
+              (error "ELSE clause isn't last -- COND->IF" clauses))
+            (make-if (cond-predicate first)
+                     (sequence->exp (cond-actions first))
+                     (expand-clauses rest))))))
+
+;; 谓词检测
+(define (true? x)
+  (not (eq? x false)))
+(define (false? x)
+  (eq? x false))
+;; note: 把除了false对象之外的所有东西都接受为真.
+
+
+;; 过程的表示
+(define (make-procedure parameters body env)
+  (list 'procedure parameters body env))
+(define (compound-procedure? p)
+  (tagged-list? p 'prodedure))
+
+(define (procedure-parameters p) (cadr p))
+(define (procedure-body p) (caddr p))
+(define (procedure-environment p) (cadddr p))
+
+
+;; 对环境的操作
+
+(define (enclosing-environment env) (cdr env))
+(define (first-frame env) (car env))
+(define the-empty-environment '())
+
+(define (make-frame variables values)
+  (cons variables values))
+(define (frame-variables frame) (car frame))
+(define (frame-values frame) (cdr frame))
+(define (add-binding-to-frame! var val frame)
+  (set-car! frame (cons var (car frame)))
+  (set-cdr! frame (cons val (cdr frame))))
+
+(define (extend-environment vars vals base-env)
+  (if (= (length vars) (length vals))
+      (cons (make-frame vars vals) base-env)
+      (if (< (length vars) (length vals))
+          (error "Too many arguments supplied" vars vals)
+          (error "Too few arguments supplied" vars vals))))
+
+(define (lookup-variable-value var env)
+  (define (env-loop env)
+    (define (scan vars vals)
+      (cond ((null? vars)
+             (env-loop (enclosing-environment env)))
+            ((eq? var (car vars))
+             (car vals))
+            (else (scan (cdr vars) (cdr vals)))))
+    (if (eq? env the-empty-environment)
+        (error "Unbound variable" var)
+        (let ((frame (first-frame env)))
+          (scan (frame-variables frame)
+                (frame-values frame)))))
+  (env-loop env))
+
+
+(define (set-variable-value! var val env)
+  (define (env-loop)
+    (define (scan vars vals)
+      (cond ((null? vars)
+             (env-loop (enclosing-environment env)))
+            ((eq? var (car vars))
+             (set-car! vals val))
+            (else (scan (cdr vars) (cdr vals)))))
+    (if (eq? env the-empty-environment)
+        (error "Unbound variable -- SET!" var)
+        (let ((frame (first-frame env)))
+          (scan (frame-variables frame)
+                (frame-values frame)))))
+  (env-loop env))
+
+(define (define-variable! var val env)
+  (let ((frame (first-frame env)))
+    (define (scan vars vals)
+      (cond ((null? vars)
+             (add-binding-to-frame! var val frame))
+            ((eq? var (car vars))
+             (set-car! vals val))
+            (else (scan (cdr vars) (cdr vals)))))
+    (scan (frame-variables frame)
+          (frame-values frame))))
+
+;;
+
+
+
+(define (primitive-procedure? proc)
+  (tagged-list? proc 'primitive))
+
+(define (primitive-implementation proc) (cadr proc))
+
+
+;; 定义被实现语言的基本过程和实现语言中的其过程名
+(define primitive-procedures
+  (list (list 'car car)
+        (list 'cdr cdr)
+        (list 'cons cons)
+        (list 'null? null?)))
+
+(define (primitive-procedure-names)
+  (map car
+       primitive-procedures))
+(define (primitive-procedure-objects)
+  (map (lambda (proc) (list 'primitive (cadr proc)))
+       primitive-procedures))
+
+(define (apply-primitive-procedure proc args)
+  (apply-in-underlying-scheme
+    (primitive-implementation proc) args))
+
+(define (setup-environment)
+  (let ((initial-env
+          (extend-environment (primitive-procedure-names)
+                              (primitive-procedure-objects)
+                              the-empty-environment)))
+    (define-variable! 'true #t initial-env)
+    (define-variable! 'false #f initial-env)
+    initial-env))
+
+(define the-global-environment (setup-environment))
+
+
+;; REPL
+(define input-pmt ";;; M-Eval input:")
+(define input-pmt ";;; M-Eval value:")
+
+(define (driver-loop)
+  (prompt-for-input input-pmt)
+  (let ((input (read)))
+    (let ((output (eval/my input the-global-environment)))
+      (announce-output output-prompt)
+      (user-print output)))
+  (driver-loop))
+
+(define (prompt-for-input string)
+  (newline)
+  (newline)
+  (display string)
+  (newline))
+
+(define (announce-output string)
+  (newline)
+  (display string)
+  (newline))
+
+(define (user-print object)
+  (if (compound-procedure? object)
+    (display (list 'compound-procedure
+                   (procedure-parameters object)
+                   (procedure-body object)
+                   '<procedure-env>))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; init and run
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define the-global-environment (setup-environment))
+
+(driver-loop)
