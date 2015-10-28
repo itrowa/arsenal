@@ -1,0 +1,78 @@
+ver3 length<=0的求值过程：
+
+
+((lambda (mk-length)
+   (mk-length eternity))
+ (lambda (length)
+   (lambda(l)
+     (cond
+       ((null? l) 0)
+     (else (add1 (length (cdr l))))))))
+
+;求值：
+
+   (mk-length eternity)
+
+要把mk-length替换为实际参数：
+->
+
+ (lambda (length)
+   ((lambda(l)
+     (cond
+       ((null? l) 0)
+     (else (add1 (length (cdr l)))))))   eternity)
+   
+再把eternity作为参数传入：
+->
+
+   ((lambda(l)
+     (cond
+       ((null? l) 0)
+     (else (add1 (eternity (cdr l)))))))
+
+
+length<=1的求值：
+
+
+((lambda (mk-length)
+   (mk-length 
+     (mk-length eternity))
+ (lambda (length)
+   (lambda(l)
+     (cond
+       ((null? l) 0)
+     (else (add1 (length (cdr l))))))))
+
+求值：
+
+ (mk-length (mk-length eternity))
+
+要把参数mk-length的实参代入
+->
+
+ (
+  (lambda (length)
+   (lambda(l)
+     (cond
+       ((null? l) 0)
+     (else (add1 (length (cdr l)))))))
+                                         (
+                                         (lambda (length)
+                                          (lambda(l)
+                                            (cond
+                                              ((null? l) 0)
+                                            (else (add1 (length (cdr l)))))))
+                                          eternity))
+
+先求出右边的参数，再带入到左边去。
+
+
+再来一个,其中l 是 (apples)
+
+( ((lambda(mk-length)
+    (mk-length mk-length)) 
+  (lambda (length)
+    (lambda(l)
+      (cond
+        ((null? l) 0)
+        (else (add1 ((mk-length eternity) (cdr l))))))))   l   )
