@@ -1,0 +1,9 @@
+(define (f g))
+    (g 2))
+
+;; supplement func
+(define (square a) a*a)
+
+;; test
+(f squrare)
+(f (lambda (z) (* z (+ z 1))))

@@ -1,0 +1,19 @@
+;; 自定义的constructor: cons
+;;
+;; 返回一个高阶过程.
+(define (cons/demo x y)
+  (define (dispatch m)
+    (cond ((= m 0) x)
+          ((= m 1) y)
+          (else (error "Argument not 0 or 1 -- CONS"))))
+  dispatch)
+
+;; 自定义的selector: car 和 cdr.
+(define (car/demo z) (z 0))
+(define (cdr/demo z) (z 1))
+
+
+;; usage  && test:
+(define d1 (cons/demo 1 2))
+(car/demo d1)
+(cdr/demo d1)

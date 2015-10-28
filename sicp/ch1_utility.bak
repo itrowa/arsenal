@@ -1,0 +1,13 @@
+;; utility function that used in this chapter.
+
+;; 求x和y的平均值
+(define (average x y)
+  (/ (+ x y) 2))
+
+;; 求一个数的平方
+(define (squrae x)
+  (* x x))
+
+;; 求一个数的立方
+(define (cube x) 
+  (* x x x))
