@@ -1,3 +1,4 @@
+;;only runs on mit-scheme or #lang planet neil/sicp
 
 (define (eval/my exp env)
   (cond ((self-evaluating? exp) exp)

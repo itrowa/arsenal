@@ -1,3 +1,5 @@
+
+
 (load "help.scm")
 
 
@@ -55,7 +57,7 @@
 ; 解释器入口: (等价于eval函数)
 (define value
   (lambda (e)
-    (meaning e (quote()))))
+    (meaning e '() )))
 ;note: quote()创建一个空的table.
 ;如果把value做成带table参数的也可以,但是像上面这样封装一下不是
 ;更好吗. 这样每次调用value就直接一个e参数输入就行了
@@ -91,7 +93,7 @@
       ((number? e) e)
       ((eq? e #t) #t)
       ((eq? e #f) #f)
-      (else (build (quote primitive) e)))))
+      (else (build 'primitive e)))))
 ;; 对数字, 直接返回其字面的值
 ;; 对#t, #f, 返回lisp中的true和false
 ;; 对其他常量的atom, 返回primitive e
@@ -109,6 +111,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;       *identifier
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; 已知table中能查找的e的value时才生效.
 (define *identifier
   (lambda (e table)
     (lookup-in-table e table initial-table)))
@@ -116,7 +119,7 @@
 ; 产生一个空的table
 (define initial-table
   (lambda (name)
-    (car (quote ()))))
+    (car '())))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;     *lambda
@@ -128,7 +131,7 @@
 ;                    输入的表   lambda函数的形参  函数body
 (define *lambda
   (lambda (e table)
-    (build (quote non-primitive) (cons table (cdr e)))))
+    (build 'non-primitive (cons table (cdr e)))))
 
 ; help func for evaluating lambda exp
 (define table-of first)
@@ -164,7 +167,7 @@
 
 ;用于evcon的help function
 (define question-of first)
-(define anawer-of second)
+(define answer-of second)
 
 ;用于evcon的help function
 ;它判断输入的参数是否等于字面意义上的 else
@@ -187,7 +190,7 @@
 ;; 功能： 先对函数名求值 再对起参数求值 最后执行apply函数
 (define *application
   (lambda(e table)
-    (apply
+    (apply-it
       (meaning (function-of e) table)
       (evlis (arguments-of e) table))))
 
@@ -215,19 +218,19 @@
 ; (table formals body) : a closure record.
 
 ;; 判断函数是primitive还是非primitive.
-(define prmitive?
+(define primitive?
   (lambda (l)
     (eq? (first l) (quote primitive))))
 
 (define non-primitive?
   (lambda (l)
-    (eq? (firsts l) (quote non-primitive))))
+    (eq? (first l) (quote non-primitive))))
 
     
 ;
 ; 具体要做的事情
 ; 是对于fun 和vals而言, func是primitive? 还是non-primitive? 分情况处理.
-(define apply/my
+(define apply-it
   (lambda (fun vals)
     (cond 
       ((primitive? fun)
@@ -241,7 +244,7 @@
       ((eq? name (quote cons))
             (cons (first vals) (second vals)))
       ((eq? name (quote car))
-       (car (first valis)))
+       (car (first vals)))
       ((eq? name (quote cdr))
        (cdr (first vals)))
       ((eq? name (quote null?))
@@ -275,10 +278,39 @@
                    (extend-table
                      (new-entry (formals-of closure) vals)
                      (table-of closure)))))
-;用以下参数试一下:
-;closure是
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; 用以下参数试一下:
+(display "start interpreter test...")
+(newline)
 
+; 定义一个环境
+(define env1            ;; 由3个entry组成
+        '(((x y)
+          ((a b c)(d e f))
+          ((u v w)
+           (1 2 3))
+          ((x y z)
+           (4 5 6)))))
+
+; (*const e table) test
 (*const 2 '()) 
 (*const #t '())
 
-(initial-table 233)
+; (*quote e table) test
+(*quote '(quote hehehe) '())
+(*quote '(quote (1 2 3 4 (5 6))) '())
+
+; (*identifier e table) test
+;(*identifier 'x env1)          ;失败
+
+; (*lambda e table) test
+;(*lambda '(lambda (x) (add x x)) env1) 失败
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(display (value '(cons 6 (quote (a b c)))))
+(newline)
+
+;(meaning '(cons z x) env1)
+
+;(meaning 'x env1)
