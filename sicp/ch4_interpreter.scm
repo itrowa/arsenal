@@ -1,6 +1,7 @@
-;;only runs on mit-scheme or #lang planet neil/sicp
+;; only runs on mit-scheme or #lang planet neil/sicp
 
-(define (eval/my exp env)
+;; 对exp采用分发机制交给谓词函数过滤, 满足特定的表达式就进一步处理它.
+(define (eval exp env)
   (cond ((self-evaluating? exp) exp)
         ((variable? exp) (lookup-variable-value exp env))
         ((quoted? exp) (text-of-quotation exp))
@@ -15,14 +16,14 @@
          (eval-sequence (begin-actions exp) env))
         ((cond? exp) (eval (cond->if exp) env))
         ((application? exp)
-         (apply/my (eval (operator exp) env)
+         (apply (eval (operator exp) env)
                 (list-of-values (operands exp) env)))
         (else
           (error "Unknown expression type -- EVAL" exp))))
 
-(define (apply/my procedure arguments)
+(define (apply procedure arguments)
   (cond ((primitive-procedure? procedure)
-         (apply-primitive-proceduree proceduree arguments))
+         (apply-primitive-procedure procedure arguments))
         ((compound-procedure? procedure)
          (eval-sequence (procedure-body procedure)
                         (extend-environment (procedure-parameters procedure)
@@ -35,46 +36,54 @@
 (define (list-of-values exps env)
   (if (no-operands? exps)
     '()
-    (cons (eval/my (first-operand exps) env)
+    (cons (eval (first-operand exps) env)
           (list-of-values (rest-operands exps) env))))
 
 ;; 条件
 (define (eval-if exp env)
-  (if (true? (eval/my (if-predicate exp) env))
-      (eval/my (if-consequent exp) env)
-      (eval/my (if-alternative exp) env)))
+  (if (true? (eval (if-predicate exp) env))
+      (eval (if-consequent exp) env)
+      (eval (if-alternative exp) env)))
 
 ;; 序列
 (define (eval-sequence exps env)
-  (cond ((last-exp? exps) (eval/my (first-exp exps) env))
-        (else (eval/my (first-exp exps) env)
+  (cond ((last-exp? exps) (eval (first-exp exps) env))
+        (else (eval (first-exp exps) env)
               (eval-sequence (rest-exps exps) env))))
 
 ;; 赋值和定义
 (define (eval-assignment exp env)
   (set-variable-value! (assignment-variable exp)
-                       (eval/my (assignment-value exp) env)
+                       (eval (assignment-value exp) env)
                        env)
   'ok)
 
 (define (eval-definition exp env)
   (define-variable! (definition-variable exp)
-                    (eval/my (assignment-value exp) env)
+                    (eval (assignment-value exp) env)
                     env)
   'ok)
 
-;; expression of expression
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; definition of expression forms
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; 利用谓词函数检查exp是否满足以下谓词之一, 这样可以筛选出符合语法的
+;; 表达式.也就达到了定义表达式形式的目的.
 
 ;; 自求值的形式:
+;; -------------------------------
 (define (self-evaluating? exp)
   (cond ((number? exp) #t)
         ((string? exp) #t)
         (else #f)))
 
 ;; 变量的形式:
+;; -------------------------------
 (define (variable? exp) (symbol? exp))
 
 ;; 引号表达式的形式:
+;; -------------------------------
 (define (quoted? exp)
   (tagged-list? exp 'quote))
 (define (text-of-quotation exp) (cadr exp))
@@ -85,7 +94,8 @@
       (eq? (car exp) tag)
       #f))
 
-;; 复制的形式: 
+;; 赋值的形式: 
+;; -------------------------------
 (define (assignment? exp)
   (tagged-list? exp 'set!))
 
@@ -93,6 +103,7 @@
 (define (assignment-value exp) (caddr exp))
 
 ;; 定义的形式:
+;; -------------------------------
 (define (definition? exp)
   (tagged-list? exp 'define))
 
@@ -107,11 +118,17 @@
                  (caddr exp))))     ; body
 
 ;; lambda表达式:
+;; -------------------------------
 (define (lambda? exp) (tagged-list? exp 'lambda))
 (define (lambda-parameters exp) (cadr exp))
 (define (lambda-body exp) (caddr exp))
 
-;; 条件式:
+;; lambda表达式的构造函数
+(define (make-lambda parameters body)
+  (cons 'lambda (cons parameters body)))
+
+;; 条件表达式:
+;; -------------------------------
 (define (if? exp) (tagged-list? exp 'if))
 (define (if-predicate exp) (cadr exp))
 (define (if-consequent exp) (caddr exp))
@@ -125,13 +142,15 @@
   (list 'if predicate consequent alternative))
 
 ;; begin结构
+;; -------------------------------
 (define (begin? exp) (tagged-list? exp 'begin))
 (define (begin-actions exp) (cdr exp))
 (define (last-exp? seq) (null? (cdr seq)))
-(define (dirst-exp seq) (car seq))
+(define (first-exp seq) (car seq))
 (define (rest-exps seq) (cdr seq))
 
-;; 构造函数consequence->exp 用于cond->if过程
+;; 构造函数consequence->exp用于从一个表达式序列构造为一个表达式, 如有需要,还能加上begin作为开头. 
+;; 用于cond->if过程
 (define (sequence->exp seq)
   (cond ((null? seq) seq)
         ((last-exp? seq) (first-exp seq))
@@ -139,6 +158,7 @@
 (define (make-begin seq) (cons 'begin seq))
 
 ;; 过程应用: 不属于以上各种类型的复合表达式.
+;; -------------------------------
 (define (application? exp) (pair? exp))
 (define (operator exp) (car exp))
 (define (operands exp) (cdr exp))
@@ -146,7 +166,8 @@
 (define (first-operand ops) (car ops))
 (define (rest-operands ops) (cdr ops))
 
-;; 把cond归约为一系列嵌套的if表达式
+;; 派生表达式cond : 规约为嵌套的if表达式.
+;; -------------------------------
 (define (cond? exp) (tagged-list? exp 'cond))
 (define (cond-clauses exp) (cdr exp))
 (define (cond-else-clause? clause)
@@ -169,7 +190,12 @@
                      (sequence->exp (cond-actions first))
                      (expand-clauses rest))))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; expression forms 在解释器内部的数据结构
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;; 谓词检测
+;; -------------------------------
 (define (true? x)
   (not (eq? x false)))
 (define (false? x)
@@ -178,6 +204,9 @@
 
 
 ;; 过程的表示
+;; -------------------------------
+
+;; 基本过程和复合过程
 (define (make-procedure parameters body env)
   (list 'procedure parameters body env))
 (define (compound-procedure? p)
@@ -188,7 +217,9 @@
 (define (procedure-environment p) (cadddr p))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 对环境的操作
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (enclosing-environment env) (cdr env))
 (define (first-frame env) (car env))
@@ -227,18 +258,20 @@
 
 (define (set-variable-value! var val env)
   (define (env-loop)
-    (define (scan vars vals)
+    (define (scan vars vals)              ;; 在当前框架中寻找vars对应的vals
       (cond ((null? vars)
              (env-loop (enclosing-environment env)))
             ((eq? var (car vars))
              (set-car! vals val))
             (else (scan (cdr vars) (cdr vals)))))
+
     (if (eq? env the-empty-environment)
         (error "Unbound variable -- SET!" var)
         (let ((frame (first-frame env)))
           (scan (frame-variables frame)
                 (frame-values frame)))))
   (env-loop env))
+;; note: 相当于双重循环..
 
 (define (define-variable! var val env)
   (let ((frame (first-frame env)))
@@ -251,9 +284,7 @@
     (scan (frame-variables frame)
           (frame-values frame))))
 
-;;
-
-
+;; -------------------------------
 
 (define (primitive-procedure? proc)
   (tagged-list? proc 'primitive))
@@ -266,7 +297,8 @@
   (list (list 'car car)
         (list 'cdr cdr)
         (list 'cons cons)
-        (list 'null? null?)))
+        (list 'null? null?)
+        (list '+ +)))
 
 (define (primitive-procedure-names)
   (map car
@@ -278,6 +310,9 @@
 (define (apply-primitive-procedure proc args)
   (apply-in-underlying-scheme
     (primitive-implementation proc) args))
+
+;; scheme内部appy过程的一个引用
+(define apply-in-underlying-scheme apply)
 
 (define (setup-environment)
   (let ((initial-env
@@ -291,14 +326,17 @@
 (define the-global-environment (setup-environment))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; REPL
-(define input-pmt ";;; M-Eval input:")
-(define input-pmt ";;; M-Eval value:")
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define input-prompt "M-Eval input:")
+(define output-prompt "M-Eval value:")
 
 (define (driver-loop)
-  (prompt-for-input input-pmt)
+  (prompt-for-input input-prompt)
   (let ((input (read)))
-    (let ((output (eval/my input the-global-environment)))
+    (let ((output (eval input the-global-environment)))
       (announce-output output-prompt)
       (user-print output)))
   (driver-loop))
@@ -322,9 +360,9 @@
                    '<procedure-env>))))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; init and run
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define the-global-environment (setup-environment))
 
 (driver-loop)

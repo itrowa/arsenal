@@ -1,0 +1,1 @@
+mit-scheme --band "C:\Program Files (x86)\MIT-GNU Scheme\lib\all.com" --library "C:\Program Files (x86)\MIT-GNU Scheme\lib" --load ch4_interpreter.scm

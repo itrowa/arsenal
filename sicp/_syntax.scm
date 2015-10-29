@@ -9,7 +9,6 @@
 	;...
 	(else exp_else)
 	)
-; if的表达
 
 (define (abs x)
     (if (< x 0) (- x)     ;<precicate> <consequence>
