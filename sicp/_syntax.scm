@@ -13,3 +13,10 @@
 (define (abs x)
     (if (< x 0) (- x)     ;<precicate> <consequence>
         x)                ;<alt consequence>, 相当于else
+
+
+;pair:
+
+(define p(cons 1 2))
+(car p)
+(cdr p)

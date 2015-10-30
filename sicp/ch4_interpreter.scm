@@ -51,13 +51,14 @@
         (else (eval (first-exp exps) env)
               (eval-sequence (rest-exps exps) env))))
 
-;; 赋值和定义
+;; 赋值
 (define (eval-assignment exp env)
   (set-variable-value! (assignment-variable exp)
                        (eval (assignment-value exp) env)
                        env)
   'ok)
 
+;; 定义(绑定?)
 (define (eval-definition exp env)
   (define-variable! (definition-variable exp)
                     (eval (assignment-value exp) env)
@@ -208,7 +209,7 @@
 
 ;; 基本过程和复合过程
 (define (make-procedure parameters body env)
-  (list 'procedure parameters body env))
+  (list 'procedure parameters body env));; 把'procedure, lambda表达式参数, 和lambda body, 和其携带的环境一起做成一个闭包.
 (define (compound-procedure? p)
   (tagged-list? p 'prodedure))
 
@@ -307,6 +308,7 @@
   (map (lambda (proc) (list 'primitive (cadr proc)))
        primitive-procedures))
 
+;; 对基本过程的apply. 就是scheme中的基本过程,所以直接调用scheme中的apply调用就行.
 (define (apply-primitive-procedure proc args)
   (apply-in-underlying-scheme
     (primitive-implementation proc) args))
