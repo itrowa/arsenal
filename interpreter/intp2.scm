@@ -100,10 +100,14 @@
 (define (primitive-proc? proc)
   (primitive-proc?-core proc 
                         primitive-proc-list))
+
 (define (primitive-proc?-core proc plist)
   (cond ((null? plist) #f)
         ((eq? (car plist) proc) #t)
         (else (primitive-proc?-core proc (cdr plist)))))
+
+(define primitive-proc-list '(+ - * / cons car cdr))
+
 (define (compound-proc? proc)
   (if (eq? (car proc) 'CLOSURE)
       #t
@@ -161,6 +165,21 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; test
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; environment test
+(define global-env '())
+(define env1 '(((a . 1) 
+                (b . 2) 
+                (c . 3)) 
+               (('+ . +) 
+                ('- . -)
+                ('* . *)
+                ('/ . /))))
+(define env2 '(((y . 2))
+               ((x . 3))       
+               ((a . 1) (b . 2) (c . 3))                 
+               (('+ . +) ('- . -) ('* . *) ('/ . /))))
+(lookup 'x env2)
+(lookup 'y env2)
 
 ; eval number
 (eval-1 '4 env1)
@@ -189,18 +208,3 @@
 (eval-1 '((lambda (x) (lambda (y) (* x y))) 3) env1)
 (eval-1 '(((lambda (x) (lambda (y) (* x y))) 3) 2) env1)
 
-; environment test
-(define global-env '())
-(define env1 '(((a . 1) 
-                (b . 2) 
-                (c . 3)) 
-               (('+ . +) 
-                ('- . -)
-                ('* . *)
-                ('/ . /))))
-(define env2 '(((y . 2))
-               ((x . 3))       
-               ((a . 1) (b . 2) (c . 3))                 
-               (('+ . +) ('- . -) ('* . *) ('/ . /))))
-(lookup 'x env2)
-(lookup 'y env2)
