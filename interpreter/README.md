@@ -10,6 +10,6 @@ under construction.
 
 @todo: fully support define, cond.
 
-# useage
+# Usage
 
 you can run in DrRacket with R5RS mode.
