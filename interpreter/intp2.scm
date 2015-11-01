@@ -7,7 +7,6 @@
 ;; 支持查找symbol的值, 但不支持绑定.
 ;; @todo: 以下special form待完善: define ; cond; 以及研究递归; Y-Combinator.
 
-
 (define (eval-1 exp env)
   (cond ((number? exp) exp )          
         ((math-op? exp) exp )
@@ -16,23 +15,14 @@
         ;;((cond? exp) do sth..)
         ((quote? exp) (quoted-content exp))
         ((lambda? exp) (list 'CLOSURE (cdr exp) env)) ; 做成闭包
-        
         ;; 组合式的求值
         (else (apply-1 (eval-1 (operator exp) env)   
                        (evlist (operands exp) env)))))
-
-
-;; 把'procedure, lambda表达式参数, 和lambda body, 和其携带的环境一起做成一个闭包.
-;; 之所以在列表前添加'CLOSURE的标识符是为了让apply可以将其识别为复合过程.
 
 ;; help 
 (define operator car)
 (define operands cdr)
 (define quoted-content cadr)
-;; help
-;(define (lambda-parameters p) (cadr p))
-;(define (lambda-body p) (caddr p))
-;(define (lambda-environment p) (cadddr p))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 模式匹配的谓词过程
@@ -65,16 +55,6 @@
           #f)
       #f))
 
-
-
-;; exp是一个变量吗?
-;; ---------------------------
-(define (variable? exp)
-  (symbol? exp))                ;; 总感觉这个判断条件可要可不要.
-;; note: variable? 必须放在eval的后面, 因为要知
-;; 道一个atom, 不是数字，也不是+-*/之一后,才可能是变量.
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; actions for  matched mattern.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -89,7 +69,9 @@
          (get-value-in-frame symbol (car env) env))))
  
 
-;;在frame中查找含有symbol的pair.
+;; 在frame中查找含有symbol的pair.
+;; symbol: atom
+;; frame: 元素全是pair的list.
 (define (get-value-in-frame symbol frame env)
   (cond ((null? frame) (lookup symbol (cdr env)))
         ((eq? (car (car frame)) symbol) (cdr (car frame)))
@@ -101,7 +83,6 @@
 ;; ---------------------------
 (define (evlist operands env)
   (cond ((null? operands) '())
-        ;((atom? operands) (cons operands '()))
         (else (cons (eval-1 (car operands) env)
                     (evlist (cdr operands) env)))))
 
@@ -119,20 +100,14 @@
 (define (primitive-proc? proc)
   (primitive-proc?-core proc 
                         primitive-proc-list))
-
 (define (primitive-proc?-core proc plist)
   (cond ((null? plist) #f)
         ((eq? (car plist) proc) #t)
         (else (primitive-proc?-core proc (cdr plist)))))
-
 (define (compound-proc? proc)
   (if (eq? (car proc) 'CLOSURE)
       #t
       #f))
-
-(define primitive-proc-list
-  '(+ - * / car cdr cons list))
-
 
 ;; help
 (define (apply-primitive proc args)
@@ -142,14 +117,12 @@
         ((eq? proc '/) (/ (car args) (cadr args)))))
 ; @todo:  (proc (car args) (cadr args))) 这样不行.. 得研究下为什么?
 
-
 ;; help
 (define (apply-compound proc args)
-  (eval-1 (cadadr proc)        ;; 闭包的body
-          (bind (caadr proc)    ;; 闭包的形参
-               args            ;; 实参
-               (caddr proc)))) ;; 闭包的env
-
+  (eval-1 (cadadr proc)         ;; 闭包中lambda过程的body
+          (bind (caadr proc)    ;; 闭包中lambda过程的形参
+                args            ;; 实参
+                (caddr proc)))) ;; 闭包的env
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 环境
@@ -189,31 +162,32 @@
 ;; test
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; atom测试
-(eval-1 '+ env1)
+; eval number
 (eval-1 '4 env1)
 
-; primitive procedure
+; eval symbol
+(math-op? '+)
+(eval-1 '+ env1)
+
+; eval primitive procedure
+(primitive-proc? '+)
 (evlist '(1 2) env1)
 (evlist '(b c) env1)
-(apply-1 '+   
-         '(1 2))
-(primitive-proc? '+)
-
+(apply-1 '+ '(1 2))
 (eval-1 '(+ 1 2) env1)
 (eval-1 '(+ a 2) env1)
 
-;  lambda expression
+; eval lambda expression
 (eval-1 '(lambda (x) (* x x)) env1)    ;;
 ; (closure (x) (* x x) (((a . 1) (b . 2) (c . 3)) (('+ . +) ('- . -) ('* . *) ('/ . /))))
 
-; compound procedure test
+; eval a compound procedure
 (eval-1 '((lambda (x) (* x x)) 2)  env1)
 ; 4
 
-; compound procedure test
+; eval a more compound procedure
 (eval-1 '((lambda (x) (lambda (y) (* x y))) 3) env1)
-(eval-1 '(((lambda (x) (lambda (y) (* x y))) 3)2) env1)
+(eval-1 '(((lambda (x) (lambda (y) (* x y))) 3) 2) env1)
 
 ; environment test
 (define global-env '())
@@ -229,3 +203,4 @@
                ((a . 1) (b . 2) (c . 3))                 
                (('+ . +) ('- . -) ('* . *) ('/ . /))))
 (lookup 'x env2)
+(lookup 'y env2)
