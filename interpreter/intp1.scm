@@ -4,7 +4,7 @@
   (cond ((number? exp) exp)          
         ((op? exp) exp)             
         ((application? exp) (apply-1 (eval-1 (operator exp))   
-                                     (eval-operands (operands exp))))))
+                                     (evlist (operands exp))))))
 ;; note: 匹配3种模式: 
 ;; 数字? 
 ;; +,-,*,/之一的atom? 
@@ -15,6 +15,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; exp是+,-,*,/之一的atom吗?
+;; -----------------------------
 (define (op? exp)
   (if (atom? exp)
       (cond ((eq? exp '+) #t)
@@ -31,6 +32,8 @@
 (define operator car)
 (define operands cdr)
 
+;; exp是一个组合式吗?
+;; -----------------------------
 (define (application? exp)
   (if (not (atom? exp))
       (if (op? (car exp))
@@ -38,15 +41,30 @@
           #f)
       #f))
 
-(define (eval-operands operands)
+;; 对operands求值
+;; -----------------------------
+(define (evlist operands)
   (cond ((null? operands) '())
         (else (cons (eval-1 (car operands))
-                    (eval-operands (cdr operands))))))
+                    (evlist (cdr operands))))))
 
-(define (apply-1 func args)
-  (cond ((eq? func '+) (+ (car args) (cadr args)))
-        ((eq? func '-) (- (car args) (cadr args)))
-        ((eq? func '*) (* (car args) (cadr args)))
-        ((eq? func '/) (/ (car args) (cadr args)))))
+;; 对组合式的操作, 那就是应用参数到过程上.
+;; -----------------------------
+(define (apply-1 proc args)
+  (cond ((eq? proc '+) (+ (car args) (cadr args)))
+        ((eq? proc '-) (- (car args) (cadr args)))
+        ((eq? proc '*) (* (car args) (cadr args)))
+        ((eq? proc '/) (/ (car args) (cadr args)))))
 
+;; test
+(define e1 '(+ 1 2))
+(eval-1 e1)
+(operator e1)            ;; +
+(eval-1 (operator e1))   ;; +
+(operands e1)            ;; (1 2)
+(evlist (operands e1))   ;; (1 2)
 
+(apply-1 (eval-1 (operator e1))   
+         (evlist (operands e1)))   ;; 3
+
+(apply-1 '+ '(1 2))

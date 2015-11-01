@@ -6,10 +6,37 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 解释器的顶层部分
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; 解释器就是要对输入的表达式e进行处理.
+
+
+
+; 解释器入口: (等价于eval函数)
+(define value
+  (lambda (e)
+    (meaning e '() )))
+;note: quote()创建一个空的table.
+;如果把value做成带table参数的也可以,但是像上面这样封装一下不是
+;更好吗. 这样每次调用value就直接一个e参数输入就行了
+
+
+; 被入口函数调用的meaning函数:
+; 参数:一个表达式 和 用于表示环境的table.
+(define meaning
+  (lambda (e table)
+    ((expression-to-action e) e table)))
+; 它的作用是对表达式进行分类,其构造就是对表达式的语法类型分情况分析.
+; (meaning e table) 会归约为如下之一:
+; (*const e table)
+; (*identifier e table)
+; (*quote e table)
+; (*lambda e table)
+; (*application e table)
+
+
+
+
+;;; 对表达式分情况分析, 对匹配的情况 返回对应的"动作函数"的名字.
 ;;; e有两种,一种是atom,另外一种是list
 ;;; 所以要分为两种情况
-
 (define expression-to-action
   (lambda (e)
     (cond
@@ -42,7 +69,7 @@
 (define list-to-action
   (lambda (e)
     (cond
-       ;1 (如果car e是atom则再分为如下情况
+       ;1 如果(car e)是atom则再分为如下情况
       ((atom? (car e))
         (cond
           ((eq? (car e)(quote quote)) *quote)
@@ -54,33 +81,13 @@
 ;先假设所有带*的函数都能正常工作,我们继续设计解释器的顶层,再填入细节.
 
 
-; 解释器入口: (等价于eval函数)
-(define value
-  (lambda (e)
-    (meaning e '() )))
-;note: quote()创建一个空的table.
-;如果把value做成带table参数的也可以,但是像上面这样封装一下不是
-;更好吗. 这样每次调用value就直接一个e参数输入就行了
 
-
-; 被入口函数调用的meaning函数:
-; 参数:一个表达式 和 用于表示环境的table.
-(define meaning
-  (lambda (e table)
-    ((expression-to-action e) e table)))
-; 它的作用是对表达式进行分类,其构造就是对表达式的语法类型分情况分析.
-; meaning e table 会归约为如下之一:
-; (*const e table)
-; (*identifier e table)
-; (*quote e table)
-; (*lambda e table)
-; (*application e table)
 
 
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 针对每种情况的求值
+;; 针对每种情况的action 函数
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -216,16 +223,6 @@
 ; (primitive primitive-name)
 ; (non-primitive (table formals body))
 ; (table formals body) : a closure record.
-
-;; 判断函数是primitive还是非primitive.
-(define primitive?
-  (lambda (l)
-    (eq? (first l) (quote primitive))))
-
-(define non-primitive?
-  (lambda (l)
-    (eq? (first l) (quote non-primitive))))
-
     
 ;
 ; 具体要做的事情
@@ -262,6 +259,14 @@
       ((eq? name (quote number?))
        (number? (first vals))))))
 
+;; help:判断函数是primitive还是非primitive.
+(define primitive?
+  (lambda (l)
+    (eq? (first l) (quote primitive))))
+
+(define non-primitive?
+  (lambda (l)
+    (eq? (first l) (quote non-primitive))))
 ;其中:atom?是
 (define :atom?
   (lambda (x)
