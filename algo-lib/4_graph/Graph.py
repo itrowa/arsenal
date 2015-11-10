@@ -5,7 +5,7 @@ class Graph:
     # stm: 一个iterator, 前两个元素表示V和E的大小, 后面就是一个个的node名
     # 要么输入V, 要么输入stm.
     def __init__(self, V=None, stm=None):
-        if stm not None:
+        if stm != None:
             self.V = stm.__next__()
             self.E = stm.__next__()
 
@@ -17,7 +17,7 @@ class Graph:
                 v = stm.__next__() 
                 w = stm.__next__()
                 self.addEdge(v, w)
-        elif V not None:
+        elif V != None:
             self.adj = [None] * self.V
             self.V = V
             self.E = 0
@@ -40,5 +40,12 @@ class Graph:
     def adj(self, v):
         return self.adj[v]
 
+import sys
 if __name__ == "__main__":
-    import sys
+
+    # import graph def, from stdin,  as list
+    glist = sys.stdin.read().split()
+    list_iter = glist.__iter__()
+    # g = Graph(stm=list_iter)
+    print(glist)
+
