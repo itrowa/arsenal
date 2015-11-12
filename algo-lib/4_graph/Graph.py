@@ -26,6 +26,7 @@ class Graph:
             self.V = 0
             self.E = 0
 
+
     def V(self):
         return self.V
 
@@ -43,9 +44,10 @@ class Graph:
 import sys
 if __name__ == "__main__":
 
-    # import graph def, from stdin,  as list
-    glist = sys.stdin.read().split()
-    list_iter = glist.__iter__()
-    # g = Graph(stm=list_iter)
+    # import graph def, from stdin, as list
+    inlist = []
+    for i in sys.stdin.read().split():
+        inlist.append(int(i))    # 把每个元素转为int型
     print(glist)
+    inlist_iter = inlist.__iter__()
 
