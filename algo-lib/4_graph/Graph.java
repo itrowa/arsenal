@@ -1,13 +1,13 @@
 public class Graph {
     private final int V;                // vertices
     private int E;                      // edges
-    private Bag<integer>[] adj;         // 存储邻接信息的数组
+    private Bag<Integer>[] adj;         // 存储邻接信息的数组
 
     // constructor: 通过V构造一张图
     public Graph(int V) {
         this.V = V;
         this.E = 0;
-        adj = (Bag<integer>[]) new Bag[V];
+        adj = (Bag<Integer>[]) new Bag[V];
         for (int v = 0; v < V; v++)
             adj[v] = new Bag<Integer>();
     }
