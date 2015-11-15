@@ -12,7 +12,7 @@ public class Graph {
             adj[v] = new Bag<Integer>();
     }
 
-    // constructor: 通过标准输入流 构造一张图: 注意课本上对输入流格式的要求.
+    // constructor: 通过一个In对象 构造一张图: 注意课本上对输入流格式的要求.
     public Graph(In in)
     {
         this(in.readInt());
@@ -56,4 +56,19 @@ public class Graph {
         }
         return s;
     }
+    
+    // 返回v的度数
+    public static int degree(Graph G, int v) {
+        int degree = 0;
+        for (int w : G.adj(v)) degree++;
+        return degree;
+    }
+            
+    // main test
+    public static void main(String[] args) {
+        Graph G = new Graph(new In(args[0]));
+        StdOut.println(G.E());
+        StdOut.println(degree(G, 0));
+    }
+    // note: 关于in class的解释http://algs4.cs.princeton.edu/12oop/In.java.html
 }
