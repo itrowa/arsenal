@@ -1,0 +1,6 @@
+D:\Desk-Sync\Github-arsenal\arsenal\bootstrap\bootstrap\bootstrap\bin\bootstrap.dll.config
+D:\Desk-Sync\Github-arsenal\arsenal\bootstrap\bootstrap\bootstrap\bin\bootstrap.dll
+D:\Desk-Sync\Github-arsenal\arsenal\bootstrap\bootstrap\bootstrap\bin\bootstrap.pdb
+D:\Desk-Sync\Github-arsenal\arsenal\bootstrap\bootstrap\bootstrap\obj\Debug\bootstrap.csprojResolveAssemblyReference.cache
+D:\Desk-Sync\Github-arsenal\arsenal\bootstrap\bootstrap\bootstrap\obj\Debug\bootstrap.dll
+D:\Desk-Sync\Github-arsenal\arsenal\bootstrap\bootstrap\bootstrap\obj\Debug\bootstrap.pdb
