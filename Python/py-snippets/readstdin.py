@@ -1,5 +1,7 @@
 import sys
-# sys.stdin is a file-like object on which you can call functions read or readlines if you want to read everything or you want to read everything and split it by newline automatically.
+# sys.stdin is a file-like object on which you can call functions read or 
+# readlines if you want to read everything or you want to read everything 
+# and split it by newline automatically.
 
 # l = sys.stdin.readlines()
 
