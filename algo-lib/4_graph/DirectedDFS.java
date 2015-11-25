@@ -1,4 +1,4 @@
-// 有向图的dfs搜索: 对于有向图G而言, 从顶点s或者一系列顶点sources开始, 是否存在到v的路径?
+// 算法:有向图的dfs搜索: 对于有向图G而言, 从顶点s或者一系列顶点sources开始, 是否存在到v的路径?
 // java DirectedDFS tinyDG.txt 1
 // java DirectedDFS tinyDG.txt 1 2 6
 

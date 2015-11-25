@@ -1,10 +1,12 @@
-public class directedCycle {
+// 判断是否是有向环
+
+public class DirectedCycle {
     private boolean[] marked;
     private int[] edgeTo;
     private Stack<Integer> cycle;                       // 保存递归调用期间栈上的所有顶点.
     private boolean[] onStack;
 
-    public directedCycle(Digraph G) {
+    public DirectedCycle(Digraph G) {
         onStack = new boolean[G.V()];
         edgeTo = new int[G.V()];
         marked = new boolean[G.V()];

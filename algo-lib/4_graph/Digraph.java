@@ -37,9 +37,9 @@ public class Digraph {
 
     // 该图的反向图(将所有的边方向反转)
     public Digraph reverse() {
-        Digraph R = new Digraph();
+        Digraph R = new Digraph(V);
         for (int v = 0; v < V; v++)
-            for (w : adj(v))
+            for (int w : adj(v))
                 R.addEdge(w, v);
         return R;
     }

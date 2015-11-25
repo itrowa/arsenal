@@ -1,5 +1,10 @@
 // 有向图中基于深度优先搜索的顶点排序算法.
-// 该算法允许用例以各种顺序遍历深度优先搜索经过的所有顶点.
+// 该算法允许用例以3种顺序遍历一个无环图的深度优先搜索经过的所有顶点.
+// 前序: 在递归调用dfs搜索节点v之前把v放入queue中
+// 后序: 在递归调用dfs搜索节点v之后把v放入queue中
+// 逆后序: 在递归调用dfs搜索节点v之后把v放入stack中.
+
+// note: 要求图是无环的, 该class不会检测图是无环的, 而是假设图已经是无环的.
 
 public class DepthFirstOrder {
     private boolean[] marked;
@@ -37,5 +42,9 @@ public class DepthFirstOrder {
     }
     public Iterable<Integer> reversePost() {
         return reversePost;
+    }
+
+    public static void main(String[] args) {
+       // 
     }
 }
