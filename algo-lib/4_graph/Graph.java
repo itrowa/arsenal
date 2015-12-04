@@ -15,7 +15,7 @@ public class Graph {
     // constructor: 通过一个In对象 构造一张图: 注意课本上对输入流格式的要求.
     public Graph(In in)
     {
-        this(in.readInt());
+        this(in.readInt());             // 调用同名构造函数~
         int E = in.readInt();
         for (int i = 0; i < E; i++) {
             int v = in.readInt();
@@ -70,5 +70,5 @@ public class Graph {
         StdOut.println(G.E());
         StdOut.println(degree(G, 0));
     }
-    // note: 关于in class的解释http://algs4.cs.princeton.edu/12oop/In.java.html
+    // note: 关于In class的解释http://algs4.cs.princeton.edu/12oop/In.java.html
 }
