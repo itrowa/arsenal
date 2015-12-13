@@ -18,7 +18,7 @@ public class DirectedDFS() {
             if (!marked[s] dfs(G, s))
     }
 
-    public dfs(Diraph G, int w) {
+    public dfs(Diraph G, int v) {
         marked[v] = true;
         for (int w : G.adj(v))
             if(!marked[w]) dfs(G, w);

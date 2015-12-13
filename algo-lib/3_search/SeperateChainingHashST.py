@@ -19,8 +19,6 @@ class SeperateChainingHashST:
     def __init__(self, M):
         self.M = M                      # hash表大小
         self.st = [None] * M                     # 一个"数组"用于符号表, 固定长度, 为M
-        # for i in st:
-            # st[i] = SequentialSearchST
 
     def __repr__(self):
         """
@@ -34,7 +32,7 @@ class SeperateChainingHashST:
         s = ""                  # output string
         st = self.st
         for i, item in enumerate(st):
-            if item == None:
+            if item == []:
                 s += "[{0}] : None\n".format(i)
             else:
                 s += "[{0}] : {1}\n".format(i, item.__repr__())
@@ -47,6 +45,7 @@ class SeperateChainingHashST:
             self.st[index] = SequentialSearchST(key, value)
         else:
             self.st[index].put(key, value)
+
 
     def get(self, key):
         return self.st[self.gethash(key)].get(key)

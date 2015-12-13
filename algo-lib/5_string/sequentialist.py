@@ -1,0 +1,1 @@
+ss = [[] for x in range(5)]
