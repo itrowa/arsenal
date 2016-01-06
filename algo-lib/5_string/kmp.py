@@ -1,4 +1,5 @@
 # Knuth-Morris-Pratt substring search algorithm
+
 R = 3               # 基数(一个字符可能取的总的情况数, 这里简化为A,B,C,共3种)
 dic = {
         'A': 0,

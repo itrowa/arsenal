@@ -1,4 +1,5 @@
 # 一个图对象.
+# algs4中图对象的数据结构.
 class Graph:
 
     def __init__(self, V=None, stm=None):
