@@ -1,0 +1,26 @@
+// demo
+import java.util.Iterator;
+ArrayList<Particle> particles;
+
+void setup() {
+  size(200, 200);
+  particles = new ArrayList<Particle>();
+  smooth();
+}
+
+void draw() {
+  background(255);
+  
+  particles.add(new Particle(new PVector(width/2, 50)));
+  
+  // use iterator object to manage particles so we'll never
+  // skip any particle in the while!
+  Iterator<Particle> it = particles.iterator();
+  while(it.hasNext()){
+    Particle p = it.next();
+    p.run();
+    if (p.isDead()) {
+      it.remove();
+    }
+  }
+}

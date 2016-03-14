@@ -1,4 +1,5 @@
 class Liquid {
+  // definition for liquid area
   float x, y, w, h;
   float c;                    // drag coefficient
   
