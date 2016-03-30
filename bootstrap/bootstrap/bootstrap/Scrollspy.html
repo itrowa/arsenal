@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>ScrollSpy Demo</title>
+	<meta charset="utf-8" />
+    <link href="Content/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h2>Scrollspy</h2>
+                <!-- 这里是代码片段..-->
+                <div style="position:relative;">
+                    <!-- Navigation -->
+                    <nav class="navbar navbar-default navbar-static" role="navigation" id="navbar-spy">
+                        <ul class="nav navbar-nav">
+                            <li class="active"><a href="#scroll-first">First</a></li>
+                            <li><a href="#scroll-second">Second</a></li>
+                        </ul>
+                    </nav>
+
+                    <!-- Content -->
+                    <div data-target="#navbar-spy" data-spy="scroll" style="height:150px; overflow-y:scroll; position:relative;">
+                        <div id="scroll-first">
+                            <!-- first block of content -->
+                            <h2>first</h2>
+                            The first step to adding scrollspy to your page is to add a nav element. The nav element needs the classes navbar (to mark it as a navbar), navbar-default (to enable the color scheme), and navbar-static (to allow it to scroll with the page). In addition, you will want to add the role='navigation' attribute for accessibility.
+                        </div>
+                        <div id="scroll-second">
+                            <!-- second block of content -->
+                            <h2>second</h2>
+                            In addition, you will need to give the nav element an ID. When scrolling through content, the tab that represents the data that is currently being viewed should be active; Bootstrap handles this by requiring you to point the container for the data back to the navigation.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="Scripts/jquery-2.1.4.min.js"></script>
+    <script src="Scripts/bootstrap.min.js"></script>
+</body>
+</html>
