@@ -11,6 +11,9 @@ x, y, z, r = digits
 8 in digits
 # note: 不要用if not digits[8]
 
+# 删除某些元素
+del digits[2]
+
 # list element selection 
 pair[0]
 pair[1]

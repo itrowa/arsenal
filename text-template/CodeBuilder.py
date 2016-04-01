@@ -25,6 +25,8 @@ class CodeBuilder(object):
         self.indent_level -= self.INDENT_STEP
 
     def add_section(self):
+        """ 一个递归的自己, 被添加到code中
+        """
         section = CodeBuilder(self.indent_level)
         self.code.append(section)
         return section
@@ -58,36 +60,14 @@ class CodeBuilder(object):
     def __str__(self):
         return "".join(str(c) for c in self.code)
 
+# test
 
-# usage:
-code = CodeBuilder()
+python_source = """
+SEVENTEEN = 17
 
-code.add_line("def render_function(context, do_dots):")
-code.indent()
+def three():
+    return 3
+"""
+global_namespace = {}
 
-vars_code = code.add_section()
-# 一个区域 以后可以在函数中添加更多的信息..
-
-code.add_line("result = []")
-code.add_line("append_result = result.append")
-code.add_line("extend_result = result.extend")
-code.add_line("to_str = str")
-# 以上都是生成的python函数的固定部分.
-
-# The buffered list holds strings that are yet to be written to our function source code. 
-# As our template compilation proceeds, we'll append strings to buffered, and flush them 
-# to the function source when we reach control flow points, like if statements, or the 
-# beginning or ends of loops.
-buffered = []
-def flush_output():
-    """ Force `buffered` to the code builder.
-        We'd like to combine repeated append calls into one extend call.
-        这是一个闭包函数, 引用了code和buffered.
-    """
-    if len(buffered) == 1:
-        code.add_line("append_result(%s)" % buffered[0])
-    elif len(buffered) > 1:
-        code.add_line("extend_result([%s])" % ", ".join(buffered))
-    del buffered[:]
-
-
+exec(python_source, global_namespace)
