@@ -71,7 +71,7 @@
 
 ;; 在frame中查找含有symbol的pair.
 ;; symbol: atom
-;; frame: 元素全是pair的list.
+;; frame: 元素全是pair的list. frame的定义见下面.
 (define (get-value-in-frame symbol frame env)
   (cond ((null? frame) (lookup symbol (cdr env)))
         ((eq? (car (car frame)) symbol) (cdr (car frame)))
