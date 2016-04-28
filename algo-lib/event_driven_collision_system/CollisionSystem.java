@@ -1,11 +1,17 @@
 // java CollisonSystem 5
+// note: 最关键的类之一Particle已经被实现. 详见Algos4的563页.
 
 public class CollisionSystem {
+
+    /* 一个事件对象储存着两个粒子(或者粒子和墙)在什么时候发生的碰撞.
+    */
     private class Event implements Comparable<Event> {
         private final double time;
         private final Particle a, b;
         private final int countA, countB;
 
+        /* 构造函数
+        */
         public Event(double t, Particle a, Particle b) {
             // 事件是和两个粒子a, b相关的，并且约定当b为空时，事件是a撞墙
             this.time = t;
@@ -40,6 +46,8 @@ public class CollisionSystem {
     private double t = 0.0;
     private Particle[] particles;
 
+    /* 构造函数
+    */
     public CollisionSystem(Particle[] particles) {
         this.particles = particles;
     }
