@@ -1,4 +1,4 @@
-;; sicp教材第四章环境部分.
+;; sicp教材第四章环境部分. 单独拿出来, 做研究和测试. 
 
 ;; 定义个空环境
 (define the-empty-environment '())
@@ -70,7 +70,42 @@
   (set-cdr! frame (cons val (cdr frame))))
 ;;@note: 检查set-car!的定义
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; env setup
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 返回一个初始的环境. 包含了几本过程的定义, 初始的基本变量.
+(define (setup-environment)
+  (let ((initial-env
+         (extend-environment (primitive-procedure-names)
+                             (primitive-procedure-objects)
+                             the-empty-environment)))
+    (define-variable! 'true #t initial-env)
+    (define-variable! 'false #f initial-env)
+    initial-env))
+
+;; help:定义一个基本过程的name-object查找表.
+(define primitive-procedures
+  '((car car)
+    (cdr cdr)
+    (null? null?)))
+
+;; help:从primitive-procedures取出names做成列表.
+(define (primitive-procedure-names)
+  (map car
+       primitive-procedures))
+;; help:从primitive-procedures取出objects做成列表.
+(define (primitive-procedure-objects)
+  (map (lambda (proc) (list 'primitive (cadr proc)))
+       primitive-procedures))
+
+;; 最后运行setup-environment, 得到解释器所用的环境.
+(define the-global-environment (setup-environment))
+;; @note: 这个只能放在最后. 因为(setup-environment)是一句函数调用.
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;test
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define test-env '(((a b c) 1 2 3 )
                    ((x y z) 4 5 6 )))
 
