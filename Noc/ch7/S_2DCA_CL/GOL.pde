@@ -1,9 +1,10 @@
 // Game of Life: a chess board-like object. 
 class GOL {
-  int w = 8;
-  int columns, rows;
-  Cell[][] board;
+  int w = 8;              // 像素宽度
+  int columns, rows;      // 格点数量(和其所占用的像素是两个概念)
+  Cell[][] board;         // 索引所有元胞的2维数组.
   
+  // constructor
   GOL() {
     columns = width/w;
     rows = height/w;
@@ -16,6 +17,7 @@ class GOL {
     }
   }
   
+  // generate next state for the board.
   void generate() {
     //Cell [][] next = new Cell [columns][rows];   // the next board. //<>//
     for (int i=0; i<columns; i++){
@@ -41,7 +43,7 @@ class GOL {
         if (board[x  ][y+1].state == 1) neighbors++;
         if (board[x+1][y+1].state == 1) neighbors++; //<>//
             
-        // calc next[x][y]
+        // calc new state for board[x][y]
         if ((board[x][y].state == 1) && (neighbors < 2))        board[x][y].newState(0);
         else if ((board[x][y].state == 1) && (neighbors > 3))   board[x][y].newState(0);
         else if ((board[x][y].state == 0) && (neighbors == 3))  board[x][y].newState(1);

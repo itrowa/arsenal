@@ -15,10 +15,12 @@ class Cell {
     previous = state;
   }
   
+  // save current state.
   void savePrevious() {
     previous = state;
   }
   
+  // apply new state s to the cell.
   void newState(int s) {
     state = s;
   }

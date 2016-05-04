@@ -1,6 +1,6 @@
 # type dispatching 风格的 数理运算系统(包含复数和有理数的相加, 相乘)
 
-最顶层的Number class重载了__add__和__mul__两个方法; 使得由Rational 和ComplexRI, ComplexMA创建的obj可以跨类型相加, 相乘.
+# 最顶层的Number class重载了__add__和__mul__两个方法; 使得由Rational 和ComplexRI, ComplexMA创建的obj可以跨类型相加, 相乘.
 
 
 # 仍然是最顶层的Number class:
