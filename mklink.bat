@@ -5,4 +5,5 @@ mklink /j "D:\Desk-Sync\Github-arsenal\arsenal\CS61A" "D:\Desk-Sync\821 CS61A"
 mklink /j "D:\Desk-Sync\Github-arsenal\arsenal\scheme" "D:\Desk-Sync\822.1 scheme"
 mklink /j "D:\Desk-Sync\Github-arsenal\arsenal\tls" "D:\Desk-Sync\803 tls-note"
 mklink /j "D:\Desk-Sync\Github-arsenal\arsenal\Noc" "D:\Desk-Sync\827 NoC"
+mklink /j "D:\Desk-Sync\Github-arsenal\arsenal\ArchiCellAutomata" "E:\Desk\822 Ϭţѧϰ\algo\gh_snippets\ArchiCellAutomata"
 
