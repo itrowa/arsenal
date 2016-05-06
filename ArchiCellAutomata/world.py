@@ -104,30 +104,34 @@ class CelluarSpace:
                 for k in range(self.gridSize):
                     self.board[i][j][k].savePrevious()
 
-        # 更新每一个元胞的状态. ()
-        for i in range(1, self.gridSize - 1):
-            for j in range(1, self.gridSize - 1):
-                for k in range(1, self.gridSize - 1):
-                    neighbors = 0
-                    if self.board[i][j][k+1].state == 1:
-                        neighbors += 1
-                    elif self.board[i][j][k-1].state == 1:
-                        neighbors += 1
-                    elif self.board[i-1][j][k].state == 1:
-                        neighbors += 1
-                    elif self.board[i+1][j][k].state == 1:
-                        neighbors += 1
-                    elif self.board[i][j-1][k].state == 1:
-                        neighbors += 1
-                    elif self.board[i][j+1][k].state == 1:
-                        neighbors += 1
+        for j in range(1, self.gridSize - 1):
+            for k in range(1, self.gridSize - 1):
+                self.board[0][j][k]
 
-                    if self.board[i][j][k].state == 1 and neighbors < 1:
-                        self.board[i][j][k].newState(0);
-                    elif self.board[i][j][k].state == 1 and neighbors > 4:
-                        self.board[i][j][k].newState(0);
-                    elif self.board[i][j][k].state == 0 and neighbors >= 3:
-                        self.board[i][j][k].newState(1);
+        # 更新每一个元胞的状态. ()
+        # for i in range(1, self.gridSize - 1):
+        #     for j in range(1, self.gridSize - 1):
+        #         for k in range(1, self.gridSize - 1):
+        #             neighbors = 0
+        #             if self.board[i][j][k+1].state == 1:
+        #                 neighbors += 1
+        #             elif self.board[i][j][k-1].state == 1:
+        #                 neighbors += 1
+        #             elif self.board[i-1][j][k].state == 1:
+        #                 neighbors += 1
+        #             elif self.board[i+1][j][k].state == 1:
+        #                 neighbors += 1
+        #             elif self.board[i][j-1][k].state == 1:
+        #                 neighbors += 1
+        #             elif self.board[i][j+1][k].state == 1:
+        #                 neighbors += 1
+
+        #             if self.board[i][j][k].state == 1 and neighbors < 1:
+        #                 self.board[i][j][k].newState(0);
+        #             elif self.board[i][j][k].state == 1 and neighbors > 4:
+        #                 self.board[i][j][k].newState(0);
+        #             elif self.board[i][j][k].state == 0 and neighbors >= 3:
+        #                 self.board[i][j][k].newState(1);
 
     def isAtBorder(self, cell):
         """ 测试元胞是否在格点边界上."""
