@@ -1,4 +1,5 @@
-;; sicp教材第四章环境部分. 单独拿出来, 做研究和测试. 
+;; sicp教材第四章环境部分. 单独拿出来, 做研究和测试.
+;; all tests passed!
 
 ;; 定义个空环境
 (define the-empty-environment '())

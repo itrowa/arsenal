@@ -1,3 +1,4 @@
+#lang planet neil/sicp
 ;; plot:
 ;; 1. 环境的表达和操作
 ;; 2. 求值器(eval)函数
@@ -79,12 +80,12 @@
                (frame-values frame)))))
   (env-loop env))
 
-;; 定义一个变量 @? 这个在哪用上了?
+;; 定义一个变量
 (define (define-variable! var val env)
   (let ((frame (first-frame env)))
     (define (scan vars vals)
       (cond ((null? vars)         (add-binding-to-frame! var val frame))
-            ((eq? var (car vars)) (setcar! vals val))
+            ((eq? var (car vars)) (set-car! vals val))
             (else                 (scan (cdr vars) (cdr vals)))))
     (scan (frame-variables frame)
           (frame-values frame))))
@@ -115,15 +116,16 @@
         ((variable? exp)             (lookup-variable-value exp env))
         ((quoted? exp)               (text-of-quotation exp))
         ((assignment? exp)           (eval-assignment exp env))
+        ((definition? exp)           (eval-definition exp env))
         ((if? exp)                   (eval-if exp env))
         ((lambda? exp)               (make-procedure (lambda-parameters exp)
                                                      (lambda-body exp)
                                                      env))
         ((begin? exp)                (eval-sequence (begin-actions exp) env))
         ((cond? exp)                 (ewal (cond->if exp) env))
-        ((application? exp)          (apply (eval (operator exp) env)
+        ((application? exp)          (epply (ewal (operator exp) env)
                                             (list-of-values (operands exp) env)))
-        (else                        (error "Unknown type -- EVAL" exp))))
+        (else                        (error "Unknown type -- EWAL" exp))))
 
 
 
@@ -190,18 +192,22 @@
 (define (make-lambda parameters body)
   (cons 'lambda (cons parameters body)))
 
+;; 处理
+(define (eval-definition exp env)
+  (define-variable! (definition-variable exp)
+                    (ewal (definition-value exp) env)
+                    env)
+  'ok)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lambda式子的判断和处理
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 判断是不是lambda式
-(define (lambda? exp)
-  (tagged-list? exp 'lambda))
+(define (lambda? exp) (tagged-list? exp 'lambda))
 
-(define (lambda-parameters exp)
-  (cadr exp))
+(define (lambda-parameters exp) (cadr exp))
 
-(define (lambda-body exp)
-  (caddr exp))
+(define (lambda-body exp) (caddr exp))
 
 (define (make-procedure parameters body env)
   (list 'procedure parameters body env))
@@ -213,11 +219,9 @@
 (define (if? exp) (tagged-list? exp 'if))
 
 (define (if-predicate exp) (cadr exp))
-
 (define (if-consequent exp) (caddr exp))
-
 (define (if-alternative exp)
-  (if (not (null? (cdddr exp)))
+  (if (not (null? (cadddr exp)))
       (cadddr exp)
       'false))
 
@@ -236,14 +240,6 @@
 (define (first-exp seq) (car seq))
 (define (rest-exps seq) (cdr seq))
 
-;; 把一个序列变换为一个表达式
-(define (sequence->exp seq)
-  (cond ((null? seq) seq)
-        ((last-exp? seq) (first-exp seq))
-        (else (make-begin seq))))
-
-(define (make-begin seq) (cons 'begin seq))
-
 ;; begin式子的处理
 (define (eval-sequence exps env)
   (cond ((last-exp? exps) (ewal (first-exp exps) env))
@@ -255,22 +251,33 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; 判断一个表达式是不是application(组合式)
-(define (application? exp) (pair? exp))
+(define (application? exp) (pair? exp)) 
 
+;; operator和operand的selector
 (define (operator exp) (car exp))
 (define (operands exp) (cdr exp))
+
+;; 关于operands的辅助过程
 (define (no-operands? ops) (null? ops))
 (define (first-operand ops) (car ops))
-(define (rest-operands ops) (car ops))
+(define (rest-operands ops) (cdr ops))
+
+;; 求值所有的参数生成实参(arguments)表.
+(define (list-of-values exps env)
+  (if (no-operands? exps)
+      '()
+      (cons (ewal (first-operand exps) env)
+            (list-of-values (rest-operands exps) env))))
 
 ;; 对procedure式子的处理.
+;; @?@ sicp这里, compound-procedure分支下 用的是eval-sequence. 但那样我就无法正确求值复合过程了.例如(factorial 5).
 (define (epply procedure arguments)
   (cond ((primitive-procedure? procedure) (apply-primitive-procedure procedure arguments))
-        ((compound-procedure? procedure)  (eval-sequence (procedure-body procedure)
+        ((compound-procedure? procedure)  (ewal (procedure-body procedure)
                                                          (extend-environment (procedure-parameters procedure)
                                                                              arguments
                                                                              (procedure-environment procedure))))
-        (else                             (error "Unkown procedure type -- APPLY" procedure))))
+        (else                             (error "Unkown procedure type -- EPPLY" procedure))))
 
 ;; 判断是不是基本过程
 (define (primitive-procedure? proc)
@@ -281,16 +288,15 @@
 ;; 判断是否是复合过程
 (define (compound-procedure? p) (tagged-list? p 'procedure))
 
+;; 取出过程的参数和body以及env
 (define (procedure-parameters p) (cadr p))
-
 (define (procedure-body p) (caddr p))
-
 (define (procedure-environment p) (cadddr p))
 
 (define (apply-primitive-procedure proc args)
   (apply-in-underlying-scheme (primitive-implementation proc) args))
 
-
+(define apply-in-underlying-scheme apply)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; cond式子的判断和处理
@@ -305,11 +311,17 @@
 ;; note: 搞清楚这里面exp, clause都代表什么.
 (define (cond? exp) (tagged-list? exp 'cond))
 
+;; 表达式中的cond-clause和else clause.
+
 (define (cond-clauses exp) (cdr exp))
+
 (define (cond-else-clause? clause)
   (eq? (cond-predicate clause) 'else))
 
+;; clause的predicate部分和actions部分.
+
 (define (cond-predicate clause) (car clause))
+
 (define (cond-actions clause) (cdr clause))
 
 (define (cond->if exp)
@@ -328,19 +340,21 @@
                  (sequence->exp(cond-actions first))
                  (expand-clauses rest))))))
 
-;; 谓词检测
-(define (true? x)
-  (not (eq? x false)))
+(define (make-if predicate consequent alternative)
+  (list 'if predicate consequent alternative))
 
-(define (false? x)
-  (eq? x false))
+;; 把一个序列变换为一个表达式
+(define (sequence->exp seq)
+  (cond ((null? seq) seq)
+        ((last-exp? seq) (first-exp seq))
+        (else (make-begin seq))))
 
-
+(define (make-begin seq) (cons 'begin seq))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; env setup
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 返回一个初始的环境. 包含了几本过程的定义, 初始的基本变量.
+;; 返回一个初始的环境. 包含了基本过程的定义, 初始的基本变量.
 (define (setup-environment)
   (let ((initial-env
          (extend-environment (primitive-procedure-names)
@@ -352,14 +366,26 @@
 
 ;; help:定义一个基本过程的name-object查找表.
 (define primitive-procedures
-  '((car car)
-    (cdr cdr)
-    (null? null?)))
+  (list(list 'car car)
+       (list 'cdr cdr)
+       (list 'null? null?)
+       (list 'cons cons)
+       (list '+ +)
+       (list '- -)
+       (list '* *)
+       (list '/ /)
+       (list '= =)))
+
+;; 谓词检测
+(define (true? x)
+  (not (eq? x false)))
+
+(define (false? x)
+  (eq? x false))
 
 ;; help:从primitive-procedures取出names做成列表.
 (define (primitive-procedure-names)
-  (map car
-       primitive-procedures))
+  (map car primitive-procedures))
 ;; help:从primitive-procedures取出objects做成列表.
 (define (primitive-procedure-objects)
   (map (lambda (proc) (list 'primitive (cadr proc)))
@@ -370,10 +396,115 @@
 ;; @note: 这个只能放在最后. 因为(setup-environment)是一句函数调用.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; REPL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define input-prompt "M-Eval input:")
+(define output-prompt "M-Eval value:")
+
+(define (driver-loop)
+  (prompt-for-input input-prompt)
+  (let ((input (read)))
+    (let ((output (eval input the-global-environment)))
+      (announce-output output-prompt)
+      (user-print output)))
+  (driver-loop))
+
+(define (prompt-for-input string)
+  (newline)
+  (newline)
+  (display string)
+  (newline))
+
+(define (announce-output string)
+  (newline)
+  (display string)
+  (newline))
+
+(define (user-print object)
+  (if (compound-procedure? object)
+    (display (list 'compound-procedure
+                   (procedure-parameters object)
+                   (procedure-body object)
+                   '<procedure-env>))))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; test
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(quoted? '(quote (1 2 3)))
+
+;; quote式子
+;;;;;;;;;;;;;;
+;(display "is this a quoted? ")(newline)
+;(quoted? '(quote (1 2 3)))
 ; #t
-(text-of-quotation  '(quote (1 2 3)))
+;(text-of-quotation  '(quote (1 2 3)))
 ; (1 2 3)
+
+;; 赋值
+;;;;;;;;;;;;;;
+;(display "is this a assignment? ")(newline)
+;(assignment? '(set! false "false"))
+; #t
+;(eval-assignment '(set! false "false") the-global-environment)
+; ok
+
+;; 定义
+;;;;;;;;;;;;;;
+;(display "is this a definition? ")(newline)
+;(definition? '(define a 2))
+; #t
+;(eval-definition '(define a 2) the-global-environment)
+; 无返回
+
+
+;; lambda?
+;;;;;;;;;;;;;;
+;(display "is this a lambda? ")(newline)
+;(lambda? '(lambda (x y) (+ y x)))
+;(make-procedure '(x y) '(+ y x) the-global-environment)
+
+;; if @?
+;;;;;;;;;;;;;;
+;(display "is this a if? ")(newline)
+;(if? '(if (> 5 2) #t #f))
+;(eval-if '(if (> 5 2) #t #f) the-global-environment)
+
+;; begin
+;;;;;;;;;;;;;;
+;(display "is this a begin? ")
+;(newline)
+;(begin? '(begin (+ 1 1) (+ 2 2) 3))
+
+;; cond  @?@
+;;;;;;;;;;;;;;
+;(display "is this a cond? ")(newline)
+;(cond? '(cond))
+
+;; application
+;(display "is this a app(combination)? ")(newline)
+;(application? '(add 3 5))
+;(application? '((lambda (x y) (+ x y)) 1 2))
+
+(define env0 the-global-environment)
+
+(ewal '(define (p1 x) (+ x 1)) env0 )     ;; 添加完p1的定义以后, 整个环境打印出来看上去显得很奇怪.但其实是对的.
+(ewal '(p1 4) env0)
+(ewal '(define (append x y)
+         (if (null? x)
+             y
+             (cons (car x)
+                   (append (cdr x) y)))) env0)
+(ewal '(define (factorial n)
+         (if (= 1 n)
+             1
+             (* n (factorial (- n 1))))) env0)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; init main loop
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(driver-loop)

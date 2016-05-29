@@ -1,3 +1,4 @@
+#lang planet neil/sicp
 ;; only runs on mit-scheme or #lang planet neil/sicp
 
 ;; 对exp采用分发机制交给谓词函数过滤, 满足特定的表达式就进一步处理它.
@@ -111,10 +112,10 @@
 (define (definition-variable exp)
   (if (symbol? (cadr exp))
       (cadr exp)
-      (caddr exp)))
+      (caadr exp)))
 (define (definition-value exp)
   (if (symbol? (cadr exp))
-    (cadr exp)
+    (caddr exp)
     (make-lambda (cdadr exp)        ; formal parameters
                  (caddr exp))))     ; body
 
@@ -365,6 +366,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; init and run
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define the-global-environment (setup-environment))
 
 (driver-loop)
+;(define env0 the-global-environment)
+;(define e1 '(define p1 (lambda (x) (* x x))))

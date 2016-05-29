@@ -5,7 +5,7 @@
   (prompt-for-input input-prompt)
   (let ((input (read)))
     (let ((output input))
-      (announce-output output-prompt)
+      (announce-output output-prompt) ;; 待开发
       (user-print output)))
   (driver-loop))
 

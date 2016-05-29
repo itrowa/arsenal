@@ -8,6 +8,10 @@ import random
 import Rhino.Geometry as rg
 import scriptcontext as sc
 
+
+# random seed
+random.seed(seed)    # 每次都使用相同的seed
+
 #############################################
 # input from Grasshopper
 #############################################
@@ -19,31 +23,31 @@ interval = 3000            # 格点之间的距离
 #############################################
 
 def ghDataTreeToPythonList(dataTree):
-    
+
     """ Converts a GH datatree to a nested Python list """
-    
+
     # Create an empty Python list
     pyList = []
-    
+
     # Add the branches of the Gh datatree to this list
     for i in range(DataTree.BranchCount):
         branch = list(DataTree.Branch(i))
         pyList.append(branch)
-        
+
     return pyList
 
 def pythonListTGhDataTree(pythonList):
-    
+
     """ Converts a  nested Python list to a GH datatree """
-    
+
     # Create GH datatree
     dataTree = gh.DataTree[int]()
-    
+
     # Add pythonlist sub lists to dataTree
     for i,l in enumerate(pythonList):
         for v in l:
             dataTree.Add(v,gh.Kernel.Data.GH_Path(i))
-            
+
     return dataTree
 
 def WorldToGH(world, type):
@@ -104,9 +108,35 @@ class CelluarSpace:
                 for k in range(self.gridSize):
                     self.board[i][j][k].savePrevious()
 
-        for j in range(1, self.gridSize - 1):
-            for k in range(1, self.gridSize - 1):
-                self.board[0][j][k]
+        for i in range(0, self.gridSize):
+            for j in range(0, self.gridSize):
+
+                # 第0层平面的控制演化
+                # 4*4 neighbors
+                ivivnbr = 0
+                if self.board[i-1][j-1][0].getState() == 1:
+                    ivivnbr += 1
+                if self.board[i-1][j][0].getState() == 1:
+                    ivivnbr += 1
+                if self.board[i][j-1][0].getState() == 1:
+                    ivivnbr += 1
+
+                if ivivnbr <= 2:
+                    self.board[i-1][j-1][0].newState(0)
+                    self.board[i-1][j][0].newState(0)
+                    self.board[i][j-1][0].newState(0)
+                    self.board[i][j][0].newState(0)
+                else:
+                    self.board[i-1][j-1][0].newState(1)
+                    self.board[i-1][j][0].newState(1)
+                    self.board[i][j-1][0].newState(1)
+                    self.board[i][j][0].newState(1)
+
+
+                # z方向的1, 2 层简单地复制0层的东西
+                self.board[i][j][1].newState(self.board[i][j][0].getState())
+                self.board[i][j][2].newState(self.board[i][j][0].getState())
+
 
         # 更新每一个元胞的状态. ()
         # for i in range(1, self.gridSize - 1):
@@ -132,6 +162,7 @@ class CelluarSpace:
         #                 self.board[i][j][k].newState(0);
         #             elif self.board[i][j][k].state == 0 and neighbors >= 3:
         #                 self.board[i][j][k].newState(1);
+
 
     def isAtBorder(self, cell):
         """ 测试元胞是否在格点边界上."""
@@ -178,8 +209,11 @@ grid = WorldToGH(grid, rg.Point3d)
 # b = grid
 
 
+pp  =[]
 for t in range(time):
     space.generate()
+    pp.append("+1s")
+    print pp
     a = WorldToGH(space.getState(), int)
 
 b = grid

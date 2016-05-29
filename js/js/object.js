@@ -17,6 +17,8 @@ var person = {
     }
 }
 
+// 注意: 所有的key都是字符串!
+
 // access value: dot exp
 
 // 注意会把value按照原样输出!!
@@ -39,6 +41,16 @@ for(var s in person)
 
 // person是Object的实例吗? instanceof statement.
 person instanceof Object;    //true
+
+// person是否具含有某个属性?
+name in person; // true
+
+// person的某个属性是它自己定义的，还是从别的对象继承过来的？
+person.hasOwnProperty('name') // true
+
+
+
+// -------------------------------------------
 
 // person的构造函数是?.
 person.constructor; //Object()
