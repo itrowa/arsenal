@@ -1,4 +1,3 @@
-withdraw = make_withdraw(100)
 
 def make_withdraw(balance):
     """
