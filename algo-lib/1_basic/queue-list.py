@@ -24,8 +24,6 @@ class Queue:
 # test client.
 q = Queue()
 
-print(q.is_empty())
-
 string = "to be or not to - be - - that - - - is"
 string = string.split() # 切分为单词的列表
 for item in string:

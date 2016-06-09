@@ -1,13 +1,5 @@
 class Node:
     # 链表. 一个链表的节点包含item(其值)和next(指向下个链表的指针)
-
-    # first = Node("to")
-    # second = Node("be")
-    # third = Node("or")
-
-    # first.next = second
-    # second.next = third
-
     empty = () # class attr. 用空的tuple表示empty
 
     def __init__(self, item, next = empty):
@@ -30,16 +22,47 @@ class Node:
         return 'StackNode({0}{1})'.format(self.item, next_str)
 
 class Queue:
-    def __init__(self, item):
-        self.head = Node(item)
-        self.tail = self.head
+    def __init__(self, item = None):
+        if item == None:
+            self.head = Node.empty
+            self.tail = self.head
+        else:
+            self.head = Node(node)
+            self.tail = self.head
 
-    def enqueue(self):
-        oldTail = self.tail
-        self.tail = Node(item, empty)
-        oldTail.next = self.tail
+    def isEmpty(self):
+        return self.head == Node.empty
+
+    def enqueue(self, item):
+        if self.isEmpty():
+            self.tail = Node(item)
+            self.head = self.tail
+        else:
+            oldTail = self.tail
+            self.tail = Node(item)
+            oldTail.next = self.tail
 
     def dequeue(self):
-        val = self.head.item
-        self.head = self.head.next
-        return val
+        if self.isEmpty():
+            return 'error'
+        else:
+            val = self.head.item
+            self.head = self.head.next
+            return val
+
+# # test client.
+# q = Queue()
+
+# string = "to be or not to - be - - that - - - is"
+# string = string.split() # 切分为单词的列表
+# for item in string:
+#     if (item != "-"):
+#         q.enqueue(item)
+#     else:
+#         print(q.dequeue())
+
+# print(s.size())
+q = Queue()
+q.enqueue('to')
+q.enqueue('be')
+q.dequeue()
