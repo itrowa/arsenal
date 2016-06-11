@@ -1,48 +1,67 @@
-# 基于binary heap (用数组实现)的优先队列(Max Priority Queue).
+# 用BinaryHeap实现的Priority Queue
 
 class MaxPQ:
     def __init__(self, cap):
-        self.l = [None] * cap
-        #self.l = [None,1,2,3,4,5,None,None,None,None]
+        self.data = [None] * cap 
         self.N = 0
-        self.cap = cap
 
     def __repr__(self):
-        return self.l.__repr__()
+        return self.data.__repr__()
 
-    # 元素的上浮
-    def swim(self, k):
-        while (k > 1 and self.l[k//2] < self.l[k]):
-            self.l[k//2], self.l[k] = self.l[k], self.l[k//2]
-            k = k // 2
-
-    # 元素的下沉
+    # sink the item at index K!
     def sink(self, k):
-        while (2*k <= N):
-            child = 2*k
-            # k处的元素要和子级节点的元素中较大的一个交换.
+        while 2*k < self.N:
+            if self.data[k] > self.data[2*k] and self.data[k] > self.data[2*k+1]:
+            # k处元素本身就比两个都大, 则不用下沉
+                break
+            elif self.data[2*k] < self.data[2*k+1]:     
+            # 右边元素比较大 和右边的交换
+                self.data[k], self.data[2*k+1] = self.data[2*k+1], self.data[k]
+                k = 2*k + 1
+            else:
+            # 左边元素比较大 和左边的交换
+                self.data[k], self.data[2*k] = self.data[2*k], self.data[k]
+                k = 2*k
 
-            # 如果子节点左边的小与右边的? 那就把child指针+1
-            if (child < self.N and self.l[child] < self.l[child+1]):
-                child+=1
-            # 让k处元素和药交换的元素先比较大小.
-            if (self.l[k] > self.l[child]):
-                self.l[k], self.l[child] = self.l[child], self.l[k]
-                k = child
+    # swim the item at index k!
+    def swim(self, k):
+        while k > 1:
+            if self.data[k] > self.data[k//2]:
+                self.data[k], self.data[k//2] = self.data[k//2], self.data[k]
+                k = k//2
             else:
                 break
 
+    # insert an item
     def insert(self, item):
-        self.N+=1
-        self.l[self.N] = item
+        self.N += 1
+        self.data[self.N] = item;
         self.swim(self.N)
 
+    # del an item
     def delMax(self):
-        maxItem = self.l[1]
-        self.l[maxItem], self.l[N] = self.l[N], self.l[maxItem]
-        self.l[N] = None
+        self.data[1], self.data[self.N] = self.data[self.N], self.data[1]
         self.sink(1)
+        val = self.data[self.N]
+        self.data[self.N] = None
+        self.N = self.N - 1
+        return val
 
+    def Max(self):
+        return self.data[1]
 
-pq = MaxPQ(10)
-pq.insert(6)
+    def size(self):
+        return self.N
+
+pq = MaxPQ(20)
+pq.insert('S')
+pq.insert('O')
+pq.insert('R')
+pq.insert('T')
+pq.insert('E')
+pq.insert('X')
+pq.insert('A')
+pq.insert('M')
+pq.insert('P')
+pq.insert('L')
+pq.insert('E')
