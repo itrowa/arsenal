@@ -14,8 +14,9 @@
 
 # Hint: This is tricky. If you are stuck, do a list comphrension over the grammar rules.
 
+# 对给定的grammar集和rewrite rule的状态 (x -> ab . cd), 将chart[i]处, 可能满足的state填入chart[i]
 def closure (grammar, i, x, ab, cd):
-    # Insert code here!
+    # 输入的state中 cd部分不能为空; 如果cd部分的第一个token在grammar的LHS中能找到, 则生成一条新的state:
     next_states = [(rule[0], [], rule[1], i) for rule in grammar if cd != [] and rule[0] == cd[0]]
     return next_states
 
@@ -29,6 +30,6 @@ grammar = [
     ("t",[""])
     ]
 
-print closure(grammar,0,"exp",["exp","+"],["exp"]) == [('exp', [], ['exp', '+', 'exp'], 0), ('exp', [], ['exp', '-', 'exp'], 0), ('exp', [], ['(', 'exp', ')'], 0), ('exp', [], ['num'], 0)]
-print closure(grammar,0,"exp",[],["exp","+","exp"]) == [('exp', [], ['exp', '+', 'exp'], 0), ('exp', [], ['exp', '-', 'exp'], 0), ('exp', [], ['(', 'exp', ')'], 0), ('exp', [], ['num'], 0)]
-print closure(grammar,0,"exp",["exp"],["+","exp"]) == []
+print (closure(grammar,0,"exp",["exp","+"],["exp"]) == [('exp', [], ['exp', '+', 'exp'], 0), ('exp', [], ['exp', '-', 'exp'], 0), ('exp', [], ['(', 'exp', ')'], 0), ('exp', [], ['num'], 0)])
+print (closure(grammar,0,"exp",[],["exp","+","exp"]) == [('exp', [], ['exp', '+', 'exp'], 0), ('exp', [], ['exp', '-', 'exp'], 0), ('exp', [], ['(', 'exp', ')'], 0), ('exp', [], ['num'], 0)])
+print (closure(grammar,0,"exp",["exp"],["+","exp"]) == [])
