@@ -1,5 +1,7 @@
 ;; #lang planet neil/sicp
 
+;; 这是SICP 4.1~4.2所实现的解释器. 可以在DrRacket中以R5RS模式运行.
+
 ;; plot:
 ;; 1. 环境的表达和操作
 ;; 2. 求值器(eval)函数
@@ -209,7 +211,7 @@
 
 (define (lambda-parameters exp) (cadr exp))
 
-(define (lambda-body exp) (caddr exp))
+(define (lambda-body exp) (cddr exp))
 
 (define (make-procedure parameters body env)
   (list 'procedure parameters body env))
@@ -333,7 +335,7 @@
 ;; @?@ sicp这里, compound-procedure分支下 用的是eval-sequence. 但那样我就无法正确求值复合过程了.例如(factorial 5).
 (define (epply procedure arguments)
   (cond ((primitive-procedure? procedure) (apply-primitive-procedure procedure arguments))
-        ((compound-procedure? procedure)  (ewal (procedure-body procedure)
+        ((compound-procedure? procedure)  (eval-sequence (procedure-body procedure)
                                                          (extend-environment (procedure-parameters procedure)
                                                                              arguments
                                                                              (procedure-environment procedure))))
@@ -440,7 +442,8 @@
     (display (list 'compound-procedure
                    (procedure-parameters object)
                    (procedure-body object)
-                   '<procedure-env>))))
+                   '<procedure-env>))
+    (display object)))
 
 
 
@@ -542,29 +545,28 @@
         5)
       the-global-environment)
 
-;(ewal '(define (p1 x) (+ x 1)) env0 )     ;; 添加完p1的定义以后, 整个环境打印出来看上去显得很奇怪.但其实是对的.
-;(ewal '(p1 4) env0)
-;(ewal '(define (append x y)
-;         (if (null? x)
-;             y
-;             (cons (car x)
-;                   (append (cdr x) y)))) env0)
+(ewal '(define (append x y)
+         (if (null? x)
+             y
+             (cons (car x)
+                   (append (cdr x) y)))) env0)
+(ewal '(append '(a b c) '(d e f)) env0)
 
-; 这个程序我目前还无法处理.
-;(ewal '((lambda (x)
-;         (+ x 1)
-;         (+ x 2)) 2) env0)
-; operator部分求值得到: (procedure (x) (+ x 1) #环境指针)
+; 求值body部分是多个表达式的组合式.
+(ewal '((lambda (x)
+         (+ x 1)
+         (+ x 2)) 2) env0)
 
-;(ewal '(define (factorial n)
-;         (if (= 1 n)
-;             1
-;             (* n (factorial (- n 1)))))
-;      env0)
+(ewal '(define (factorial n)
+         (if (= 1 n)
+             1
+             (* n (factorial (- n 1)))))
+      env0)
 
-;(ewal '(factorial 5) env0)
+(ewal '(factorial 5) env0)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; init main loop
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;(driver-loop)
+(driver-loop)
