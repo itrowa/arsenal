@@ -518,6 +518,7 @@
 ; 相当于(ewal (define cond-1-var 88) the-global-environment)
 
 ;; application
+;;;;;;;;;;;;;;
 (display "is this a app(combination, or call expression)? ")(newline)
 (application? '(+ 3 5))
 ; #t

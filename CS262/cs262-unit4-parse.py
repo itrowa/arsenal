@@ -16,6 +16,7 @@ def parse(tokens,grammar):
     chart[i] = [ ]
   start_state = (start_rule[0], [], start_rule[1], 0)
   chart[0] = [ start_state ]
+  print(chart)
   for i in range(len(tokens)):
     while True:
       changes = False

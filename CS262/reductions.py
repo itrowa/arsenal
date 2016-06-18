@@ -21,4 +21,8 @@ chart = {0: [('exp', ['exp'], ['+', 'exp'], 0),
          1: [('exp', ['exp', '+'], ['exp'], 0)], 
          2: [('exp', ['exp', '+', 'exp'], [], 0)]}
 
-print (reductions(chart,2,'exp',['exp','+','exp'],[],0) == [('exp', ['exp'], ['-', 'exp'], 0), ('exp', ['exp'], ['+', 'exp'], 0)])
+print (reductions(chart,2,'exp',['exp','+','exp'],[],0) == [('exp', ['exp'], ['-', 'exp'], 0), 
+                                                            ('exp', ['exp'], ['+', 'exp'], 0)])
+
+x = 'exp'
+jstate = ('exp', [], ['exp', '-', 'exp'], 0)
