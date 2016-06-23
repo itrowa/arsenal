@@ -69,36 +69,36 @@ def build_chart(grammar, tokens):
     # 将初始化规则放入chart中    
     start_state = (lhs_of_rule(start_rule), [], rhs_of_rule(start_rule), 0)
     chart[0].append (start_state)
-    print("DEBUG - Init chart: ")
-    print_chart(chart)
+    # print("DEBUG - Init chart: ")
+    # print_chart(chart)
 
     for i in chart: # i 分别取chart中每个key, 作为下标使用.
         state_set = chart[i]
-        print("DEBUG - filling chart{0:1d}".format(i))
+        # print("DEBUG - filling chart{0:1d}".format(i))
         for state in state_set:  # 取出当前state set的每一个state
-            print("    DEBUG - current state: ", state_repr(state))
+            # print("    DEBUG - current state: ", state_repr(state))
             next_t = next_token(state)
-            print("    DEBUG - next token: ", next_t)
+            # print("    DEBUG - next token: ", next_t)
 
 
             if is_terminal(next_t, grammar):
-                print("    DEBUG - go for case 1.. ")
+                # print("    DEBUG - go for case 1.. ")
                 predict(grammar, i, chart, next_t)
             elif is_nonterminal(next_t, grammar):
                 next_input = tokens[i]
                 if next_input == next_t:    # 如果下一个输入的token等于这条state中下一个token
-                    print("    DEBUG - go for case 2.. ")
+                    # print("    DEBUG - go for case 2.. ")
                     shift(state, i, chart)
             elif next_t == None:
-                print("    DEBUG - go for case 3.. ")
+                # print("    DEBUG - go for case 3.. ")
                 reduction(state, i, chart)
             else: 
-                print("Undefined token", next_token)
+                # print("Undefined token", next_token)
                 break
             # print("    DEBUG - gen for this state over. now chart is: ")
             # print_chart(chart)
-        print("    DEBUG - gen for this state set over. now chart is: ")
-        print_chart(chart)
+        # print("    DEBUG - gen for this state set over. now chart is: ")
+        # print_chart(chart)
                 
     return chart
 
@@ -114,7 +114,7 @@ def predict(grammar, i, chart, token):
                                rhs_of_rule(rule), 
                                i)
             add_to_chart(chart, i, predicted_state)
-            print("DEBUG-PREDICT - insert " + state_repr(predicted_state) + "to chart[" + str(i) + "]..")
+            # print("DEBUG-PREDICT - insert " + state_repr(predicted_state) + "to chart[" + str(i) + "]..")
 
 def shift(state, i, chart):
     """ state: x -> a b . c d (j)
@@ -127,7 +127,7 @@ def shift(state, i, chart):
                  after_dot(state)[1:],                             # after_dot part
                  from_pos(state))                                  # from position
     add_to_chart(chart, i+1, new_state)
-    print("DEBUG-SHIFT - insert " + state_repr(new_state) + "to chart[" + str(i+1) + "]..")
+    # print("DEBUG-SHIFT - insert " + state_repr(new_state) + "to chart[" + str(i+1) + "]..")
 
 def reduction(state, i, chart):
     """ 对于在chart[i]处的state: x -> e f g . (j)
@@ -148,7 +148,7 @@ def reduction(state, i, chart):
                                    from_pos(formal_state)
                                    )
                 add_to_chart(chart, i, reduction_state)
-                print("DEBUG-REDUCTION - insert " + state_repr(reduction_state) + "to chart[" + str(i) + "]..")
+                # print("DEBUG-REDUCTION - insert " + state_repr(reduction_state) + "to chart[" + str(i) + "]..")
 
 
 

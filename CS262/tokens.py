@@ -90,6 +90,21 @@ t_LT              = r'<'
 t_GT              = r'>'
 t_GE              = r'>='
 
+# from unit 6  fitting them together
+def t_javascript_start(token):
+    pass
+    r'\<script\ type =\"text/\javascript\"\>'   # <script type ="text/javascript>"
+    token.lexer.code_start = token.lexer.lexpos
+    token.lexer.begin("javascript")             
+
+def t_javascript_end(token):
+    pass
+    r'\<\/script\>'                             # </script>
+    token.value = token.lexer.lexdata[token.lexer.code_start: token.lexer.lexpos-9] # 取出jascript标签的的代码部分
+    token.type = 'JAVASCRIPT'
+    token.lexer.lineno += token.value.count('\n')
+    token.lexer.begin.('INITIAL')  # goto init state: 这时可以处理html标签.
+    return token
 
 # 13
 # -13
