@@ -14,6 +14,10 @@ x, y, z, r = digits
 # 删除某些元素
 del digits[2]
 
+# 删除制定下标的元素
+
+# 删除具有指定值的元素
+
 # list element selection 
 pair[0]
 pair[1]

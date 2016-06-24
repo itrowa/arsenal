@@ -1,7 +1,6 @@
 def b():
-    for i in range(5):
-        if i == 3:
-            break
-    return "haah"
+    a = 1
+    b = 2
+    return c = a + b
 
 b()
