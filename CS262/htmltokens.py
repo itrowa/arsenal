@@ -37,7 +37,7 @@ def t_htmlcomment_error(t):
         t.lexer.skip(1) 
 
 def t_javascript(token): 
-        r'\<script\ type=\"text\/javascript\"\>'
+        r'\<script\ type=\"text\/javascript\"\>' # 等号前后不允许空格.
         token.lexer.code_start = token.lexer.lexpos
         token.lexer.level = 1
         token.lexer.begin('javascript') 

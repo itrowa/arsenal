@@ -214,7 +214,7 @@
 (define (lambda-body exp) (cddr exp))
 
 (define (make-procedure parameters body env)
-  (list 'procedure parameters body env))
+  (list 'procedure parameters body env))    ;; 做成闭包
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; if式子的判断和处理

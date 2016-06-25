@@ -90,5 +90,5 @@ def t_newline(t):
         t.lexer.lineno += 1
 
 def t_error(t):
-        print "HTML Lexer: Illegal character " + t.value[0] 
+        print ("HTML Lexer: Illegal character " + t.value[0] )
         t.lexer.skip(1) 
