@@ -1,51 +1,71 @@
 # javascript interpreter
 
+# 一些函数定义.
+sqrt = ("function",("x"),(("return",("binop",("identifier","x"),"*",("identifier","x"))),),{})
+
 # environment
-global_env = []
+# env: 一个tuple, 存储着指向父环境的指针; 和一个dict, 存储着name-value的绑定.
+# env= (parent, dict)
 
-global_frame = {
-    "javascript output: ": "",
-    "x": 3,
-    "y": 4,
-    "z": 5,
-}
+global_env = (None, { "x": 11,
+                      "y": 22,
+                      "$write_buffer": "",
+                      "sqrt": sqrt,
+})
 
-f1 = {
-    "x": 100,
-    "y": 101,
-    "z": 102,
-}
+env1 = (global_env, {
+    
+    "x": 33,
+    "z": 44,
+})
 
-global_env.append(global_frame)
-global_env.append(f1)
-print (global_env)
+
 
 def env_lookup(name, env):
-    """ 查找变量的值.
+    """ 查找变量的值. 如果查找不到, 返回None.
     """
-    for frame in env:
-        if name in frame:
-            return frame[name]
-    return None
+    current_env = env[1]
+    parent_env = env[0]
+
+    # 先在本地环境查找变量的值; 查找不到, 再去父环境中查找. 
+    if name in current_env:
+        return current_env[name]
+    elif parent_env == None:
+        return None
+    else:
+        return env_lookup(name, parent_env)
+
+def add_binding(name, value, env):
+    """ 在当前环境中添加一个name-value的绑定.
+    """
+    env[1][name] = value
 
 def env_update(name, value, env):
     """ 若变量已存在, 则更新其值
         若变量不存在, 添加一个变量绑定到global frame.
     """
-    for frame in env:
-        if name in frame:
-            frame[name] = value
-            return
-    env[0][name] = value
-    # @todo: 如果不能正确赋值, 应该返回什么信息?
+    current_env = env[1]
+    parent_env = env[0]
+
+    # 在本地查找到name则更新其值.
+    if name in current_env:
+        current_env[name] = value
+    # 如果这已经是glboal env且查找不到值, 则新增一个绑定.
+    elif parent_env == None:
+        if not name in current_env:
+            current_env[name] = value
+    # 往父环境中递归调用自己.
+    elif not ((parent_env) == None):
+        env_update(name, value, parent_env)
 
 
 
 # 在我们的javascript实现中, js的解释结果是一系列字符串, 
 # 储存在env的第一帧的"javascript output: "键下.
-def interpret(ast):
-    global_env = (None, {"javascript output: ": ""})
 
+# 解释器入口 ====================================================
+
+def interpret(ast):
     for elt in ast:
         eval_elt(elt, global_env)
     return (global_env[1])["javascript output"]
@@ -57,7 +77,7 @@ def eval_elt(elt, env):
 
     if elttype == 'function':           # function definition?
         pass
-    elif tlttype == 'stmt':             # statement
+    elif elttype == 'stmt':             # statement
         eval_stmt(eltcontent, env)      # stmt@?
     else:
         print ("ERROR - Unknown element " + elt) 
@@ -85,6 +105,7 @@ def eval_stmt(stmt, env):
             eval_stmts(consequent, env)
 
     # if (exp) {<stmts>} else {<stmts>}
+    # # if x < 5 then A;B; else C;D;
     elif stype == "if-then-else":
         predicate = stmt[1]           
         consequent = stmt[2]
@@ -98,15 +119,21 @@ def eval_stmt(stmt, env):
     elif stype == "var":
         varname = stmt[1]
         rhs = stmt[2]
-        #@? 求值rhs的值, 然后在环境中更新
-        pass
+        # 求值rhs的值, 然后在环境中更新
+        value_of_rhs = eval_exp(rhs, env)
+        add_binding(varname, value_of_rhs, env)
+
 
     # x = <exp>
+    # eg: ("assign", "x", ("binop", ..., "+",  ...)) <=== x = ... + ...
     elif stype == "assign":
         varname = stmt[1]
         rhs = stmt[2]
-        # 在环境中更新varname的值. @?@
-        pass
+
+        # 求值rhs的exp.
+        varval = eval_exp(rhs, env)
+        # 在环境中更新varname的值.
+        env_update(env, varname, varval)
 
     elif stype == "return":
         returned = eval_exp(stmt[1], env)
@@ -124,7 +151,6 @@ def eval_exp(exp, env):
 
     if etype == "identifier":
         varname = exp[1]
-        # @todo: 在环境中查找变量.
         value = env_lookup(varname, env)
         if value == None:
             print("ERROR: unbound variable: " + varname)
@@ -146,11 +172,13 @@ def eval_exp(exp, env):
     elif etype == "not":
         return not(eval_exp(exp[1], env))
 
-    # @?@ 又是closure?
+    # 匿名函数对象的声明
+    # eg: function(x, y) { return x + y;}
     elif etype == "function":
+        # exp: ("function", ["x", "y"], [("return", ("binop", ...)])
         fparams = exp[1]
         fbody = exp[2]
-        return ("closure", fparams, fbody, env)
+        return ("function", fparams, fbody, env) # 做成闭包.
 
     # 二元运算
     elif etype == "binop":
@@ -185,15 +213,42 @@ def eval_exp(exp, env):
                 print ("ERROR: unknown binary operator ", op)
                 exit(1)
 
-    # call expression
-    elif etype == "call":
-        fname == exp[1]
-        args = exp[2]
+    # call expression / 函数调用
+    elif etype == "call":   #("call", "sqrt", [("number", "2")])
+        fname = exp[1]                 # 函数名
+        args = exp[2]                   # 实际参数的列表
 
-        fvalue = env_lookup(fname, env)
+        fvalue = env_lookup(fname, env)  # 取出fname绑定的那个对象.
 
         if fname == "write":
-            pass
+            argval = eval_exp(args[0], env)
+            output_sofar = env_lookup("$write_buffer", env)
+            env_update("$write_buffer", output_sofar + str(argval), env)
+
+        if fvalue[0] == "function":  # 如果是一个函数闭包
+            # ("function", params, body, env)
+            fparams = fvalue[1]
+            fbody = fvalue[2]
+            fenv = fvalue[3]
+
+            if len(fparams) != len(args):
+                print ("ERROR: wrong number of args")
+            else:
+
+                # 创建一个新的环境.
+                extended_env = (fenv, {})
+
+                # 对每个实参求值, 并在刚刚创建的新环境创建 形式参数 - 实际参数值的绑定.
+                for i in range(len(args)):
+                    argval = eval_exp(args[i], env)
+                    extended_env[1][fparams[i]] = argval
+
+                try:
+                    # function body由许多statement组成. 因此用eval_stmts求值.
+                    eval_stmts(fbody, extended_env)
+                    return None
+                except Exception as return_value:
+                    return return_value
 
         # fname在环境中应该绑定到一个闭包上.
         # 如果是闭包, 则求值args,  然后在扩展了的环境中将参数值求值function的body.
