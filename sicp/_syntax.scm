@@ -1,6 +1,6 @@
 ; define
 (define (square x) (* x x))
-(define square (lambda x (* x x)))
+(define square (lambda (x) (* x x)))
 
 ; cond的表达
 (cond
