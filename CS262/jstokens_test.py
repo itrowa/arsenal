@@ -2,11 +2,18 @@ import ply.lex as lex
 import jstokens             # 导入js 的lex定义
 
 data = """
-var x = 32; /* start comment */
+var x = 32; /* star comment */
 // this is a comment
-if (x > 5) {
-    return x;
+
+var ceiling_of_5 = function {
+    if (x > 5) {
+        temp = x;
+        return 5;
+    }
+    else
+        return x;
 }
+
 """
 
 # 初始化一个lexer

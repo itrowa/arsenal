@@ -21,7 +21,7 @@ hello world!
 # [('word-element', 'hello'), ('word-element', 'world!')]
 
 webpage4 = """
-<b>hello world!</b>
+this is a <b class="em">strong</b> text.
 """
 
 htmllexer = lex.lex(module=htmltokens) 

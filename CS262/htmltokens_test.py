@@ -13,11 +13,15 @@ webpage3 = """
 hello world!
 """
 
+webpage4 = """
+this is a <b class="em">strong</b> text.
+"""
+
 # 初始化一个lexer
 lexer = lex.lex(module=htmltokens)
 
 # 输入一些字符串.
-lexer.input(webpage1)
+lexer.input(webpage4)
 
 # lex.token() 返回下一个LexToken类型的token实例. 如果遇到字符串末尾则返回None
 while 1:

@@ -1,26 +1,29 @@
-# python 中list的表达形式
+# python 中list的创建
 digits = [1, 8, 2, 8]
 
-# 当运算符作用于list的时候, 例如 +, *,，它处理的不是list中的元素，而是list自身！
+# list 和 list的二元运算
 [2, 7] + digits * 2
+# [2, 7, 1, 8, 2, 8, 1, 8, 2, 8]
 
 # 利用多重赋值访问list中的元素
 x, y, z, r = digits
 
+# 用下标来选择元素.
+digits[0]
+digits[1]
+
 # 元素是否存在?
 8 in digits
+# 返回True或者False
 # note: 不要用if not digits[8]
 
-# 删除某些元素
+# 按下标删除元素
 del digits[2]
 
-# 删除制定下标的元素
 
 # 删除具有指定值的元素
-
-# list element selection 
-pair[0]
-pair[1]
+digits.remove(2)
+# digits中的2被删除了
 
 # enumerate
 for i, digit in enumerate(digits):
