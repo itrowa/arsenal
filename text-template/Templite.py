@@ -14,7 +14,7 @@ class Templite:
         for context in contexts:
             self.context.update(context)
             # 把外来的context的 key/value对添加到self.context中.
-            # 需要这一步的原因是, 许多templa text中的name并没有定义.
+            # 需要这一步的原因是, 许多template text中的name并没有定义.
 
         # 创建两个集合
         self.all_vars = set()
@@ -32,7 +32,7 @@ class Templite:
         vars_code = code.add_section()
         # 一个区域 以后可以在函数中添加更多的信息..
         # 后面的程序在继续parse整个template text时会发现更多的变量名, 
-        # 到时候变量名的赋值会添加到此处.        
+        # 到时候变量名的赋值会添加到此处.
 
         code.add_line("result = []")
         code.add_line("append_result = result.append")
@@ -61,11 +61,13 @@ class Templite:
         # text 的解析
         # ####################################################################
 
-        # 1. 把模板源文件看成是str, 用正则表达式去parse成一系列token
+        # 1. 词法分析:
+        # 把模板源文件看成是str, 用正则表达式去parse成一系列token
         ops_stack = []
         tokens = re.split(r"(?s)({{.*?}}|{%.*?%}|{#.*?#})", text)
         # 把text解析成tokens. tokens是一系列str的list.
 
+        # 2. 句法分析和翻译
         # case analysis
         for token in tokens:
             if token.startswith('{#'):
@@ -74,6 +76,7 @@ class Templite:
 
             elif token.startswith('{{'):
                 # 表达式. 需要转化为python表达式
+                # eg: {{ variable }}
 
                 expr = self._expr_code(token[2:-2].strip())
                 # 掐头去尾, 删掉空格, 换行, 制表符
@@ -81,6 +84,7 @@ class Templite:
 
             elif token.startswith('{%'):
                 # Control Structrures.
+                # eg: {% for i in items %}
                 flush_output()
                 words = token[2:-2].strip().split()
 
@@ -126,6 +130,8 @@ class Templite:
                 if token:
                     # repr()是个好东西, 它能自动添加反斜杠, 还能处理其他转义字符.
                     buffered.append(repr(token))
+
+        # token遍历结束..
 
         # if there are still op in stack:
         if ops_stack:
@@ -201,10 +207,12 @@ class Templite:
 # Make a Templite obj.
 # 初始化的时候, 把template的内容和 context放进去就好.
 templite = Templite('''
+    <html>
     <h1>Hello {{name|upper}}! </h1>
     {% for topic in topics %}
         <p>You are interested in {{topic}}.</p>
     {% endfor %}
+    </html>
     ''',
     {'upper': str.upper},
     )

@@ -1,7 +1,8 @@
 # CodeBuilder只是在字面意义上地一行一行堆砌"代码", 而完全不关心代码里面的实际内容是什么.
 
 class CodeBuilder(object):
-    """ Build source code conveniently.
+    """ 仅仅是一个类, 让我们更方便创建python代码, 尤其是按行进行处理; 以及
+        处理缩进.
     """
     INDENT_STEP = 4
 
@@ -53,7 +54,8 @@ class CodeBuilder(object):
         # global_namespace = {}
         # exec(python_source, global_namespace)
         # ------------
-        # then global_namespace['SEVENTEEN'] is 17, and global_namespace['three'] is an actual function named three.
+        # 执行完毕后, global_namespace['SEVENTEEN'] = 17, 
+        #            global_namespace['three'] is an actual function named three.
 
         return global_namespace
 
@@ -61,13 +63,14 @@ class CodeBuilder(object):
         return "".join(str(c) for c in self.code)
 
 # test
+if __name__ == "__main__":
 
-python_source = """
-SEVENTEEN = 17
+    python_source = """
+    SEVENTEEN = 17
 
-def three():
-    return 3
-"""
-global_namespace = {}
+    def three():
+        return 3
+    """
+    global_namespace = {}
 
-exec(python_source, global_namespace)
+    exec(python_source, global_namespace)
