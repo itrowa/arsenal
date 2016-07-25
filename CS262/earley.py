@@ -10,8 +10,10 @@
 # start_rule = grammar[0]
 # tokens = ["a", "b", "b", "c"]
 
-## 一条rule 就是一个类似这样的
+# # 一条rule 就是一个类似这样的
 # ("P", ["(" , "P", ")" ])
+
+# from earley_test import grammar, start_rule, tokens
 
 # 关于Rule, token的各种辅助函数
 def lhs_of_rule(rule):
@@ -188,3 +190,15 @@ def diagnose(input, grammar, chart):
     return accepting_state in chart[len(chart)-1] # 如果accepting_state在chart的最后一个element中. 则parse成功.
 
 
+grammar = [
+    ("T", ["a", "B", "c"]),
+    ("B", ["b", "b"])
+]
+start_rule = grammar[0]
+tokens = ["a", "b", "b", "c"]
+
+print("building chart....")
+c = build_chart(grammar, tokens)
+print("\nbuilding chart complete. chart is: \n")
+print_chart(c)
+print("\ninput is in this grammar? " + str(diagnose(tokens, grammar, c)))

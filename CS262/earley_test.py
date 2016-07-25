@@ -1,18 +1,18 @@
 from earley import *
 
 # the grammar by loup-vaillant.fr
-grammar = [
-    ("Sum", ["+", "Product"]),
-    ("Sum", ["-", "Product"]),
-    ("Sum", ["Product"]),
-    ("Product", ["Product", "*", "Factor"]),
-    ("Product", ["Product", "/", "Factor"]),
-    ("Product", ["Factor"]),
-    ("Factor", ["(", "Sum", ")"]),
-    ("Factor", ["Number"]),
-    ("Number", ["Number"]),
+# grammar = [
+#     ("Sum", ["+", "Product"]),
+#     ("Sum", ["-", "Product"]),
+#     ("Sum", ["Product"]),
+#     ("Product", ["Product", "*", "Factor"]),
+#     ("Product", ["Product", "/", "Factor"]),
+#     ("Product", ["Factor"]),
+#     ("Factor", ["(", "Sum", ")"]),
+#     ("Factor", ["Number"]),
+#     ("Number", ["Number"]),
 
-]
+# ]
 
 # --------------------------------------------------
 
@@ -28,12 +28,12 @@ grammar = [
 
 # --------------------------------------------------
 
-# grammar = [
-#     ("T", ["a", "B", "c"]),
-#     ("B", ["b", "b"])
-# ]
-# start_rule = grammar[0]
-# tokens = ["a", "b", "b", "c"]
+grammar = [
+    ("T", ["a", "B", "c"]),
+    ("B", ["b", "b"])
+]
+start_rule = grammar[0]
+tokens = ["a", "b", "b", "c"]
 
 print("building chart....")
 c = build_chart(grammar, tokens)
