@@ -17,11 +17,11 @@
     shuffle elements in array
     recursively sort array:
         pick first element as pivot
-          for element in (array - pivot):
-            if element > pivot：
-                swap element, array[leftPartLastIndex+1]
-            else:
-               do nothing
+        for element in (array - pivot):
+          if element > pivot：
+             swap element, array[leftPartLastIndex+1]
+          else:
+             do nothing
         swap pivot, leftPartLastValue
 
         sort array[startIndex, pivotIndex]

@@ -42,13 +42,13 @@ data: MaxPQ
 ## Promotion
 当Child比Parent大时，需要将Child元素上浮。
 
-promotion for data[k]:
-    while k > 1:   # k不能是根节点, 否则就不能上浮了.
-        if k < data[k/2]:
-            exchange data[k], data[k/2]
-            k = k/2
-        else: 
-            break
+    promotion for data[k]:
+        while k > 1:   # k不能是根节点, 否则就不能上浮了.
+            if k < data[k/2]:
+                exchange data[k], data[k/2]
+                k = k/2
+            else: 
+                break
     
 循环不变式： 每次交换完成后，k所在的父节点总是大于k处节点，从而保证了k的父节点，子树，子子树的有序性.
 
@@ -57,14 +57,14 @@ promotion for data[k]:
 当Parent比至少一个child小时，将需要将此parent下沉至有序为止.
 和子节点中较大的那个交换即可.
 
-Demotion for data[k]:
-    while 2k <= n: #n不能是leaf.
-        if data[2*k] < data[2*k+1]:
-            exchange data[k], data[2k+1]
-            k = 2*k+1
-        else:
-            exchange data[k], data[2k]
-            k = 2*k
+    Demotion for data[k]:
+        while 2k <= n: #n不能是leaf.
+            if data[2*k] < data[2*k+1]:
+                exchange data[k], data[2k+1]
+                k = 2*k+1
+            else:
+                exchange data[k], data[2k]
+                k = 2*k
 
 
 # Binary Heap实现的Priority Queue
