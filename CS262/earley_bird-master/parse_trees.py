@@ -2,8 +2,11 @@
 # coding=utf-8
 # -*- encoding: utf-8 -*-
 
+# 定义了树节点的结构和操作方法； 定义了如何从earley charts生成AST的方法。
+
 from operator import add
 
+# 定义一棵树节点.
 class TreeNode:
     def __init__(self, body, children=[]):
         '''Initialize a tree with body and children'''
@@ -29,16 +32,19 @@ class TreeNode:
         '''A leaf is a childless node'''
         return len(self.children) == 0
 
+# 定义解析数的结构和方法。
 class ParseTrees:
     def __init__(self, parser):
-        '''Initialize a syntax tree parsing process'''
+        '''Initialize a syntax tree parsing process
+            @parser: 一个parser对象
+            '''
         self.parser = parser
-        self.charts = parser.charts
+        self.charts = parser.charts     # 这是已经生成好了的earlry charts.
         self.length = len(parser)
 
         self.nodes = []
-        for root in parser.complete_parses:
-            self.nodes.extend(self.build_nodes(root))
+        for root in parser.complete_parses:     # 遍历parser中标记为"完成"的earley state
+            self.nodes.extend(self.build_nodes(root))   # 将它们作为root去添加到self.nodes中。
 
     def __len__(self):
         '''Trees count'''
@@ -52,7 +58,8 @@ class ParseTrees:
                                       for i in range(len(self))))
 
     def build_nodes(self, root):
-        '''Recursively create subtree for given parse chart row'''
+        '''Recursively create subtree for given parse chart row
+            root: 一个earley state(Chart Row obj)'''
         nodes = []
 
         # find subtrees of current symbol

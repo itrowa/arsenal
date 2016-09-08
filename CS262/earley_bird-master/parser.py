@@ -5,18 +5,21 @@
 from chart import *
 from grammar import *
 
+# 定义Parser
 class Parser:
     GAMMA_SYMBOL = 'GAMMA'
 
     def __init__(self, grammar, sentence, debug=False):
-        '''Initialize parser with grammar and sentence'''
+        '''Initialize parser with grammar and sentence
+            输入： 语法集；句子；debug标记
+        '''
         self.grammar = grammar
         self.sentence = sentence
         self.debug = debug
 
         # prepare a chart for every input word
-        self.charts = [Chart([]) for i in range(len(self)+1)]
-        self.complete_parses = []
+        self.charts = [Chart([]) for i in range(len(self)+1)]           # 假设输入token是n个，则charts是n+1个元素.
+        self.complete_parses = []           # 已完成的parses被做成列表, 列表中装载的是ChartRow对象(earley item).
 
     def __len__(self):
         '''Length of input sentence'''
@@ -25,7 +28,10 @@ class Parser:
     def init_first_chart(self):
         '''Add initial Gamma rule to first chart'''
         row = ChartRow(Rule(Parser.GAMMA_SYMBOL, ['S']), 0, 0)
+        # 调用ChartRow class的初始化方法，新建一个chart row. 
+        # 初始化的参数，第一个是被格式化的rule, dot和start都是0.
         self.charts[0].add_row(row)
+        # 添加row
 
     def prescan(self, chart, position):
         '''Scan current word in sentence, and add appropriate
@@ -50,7 +56,7 @@ class Parser:
     def complete(self, chart, position):
         '''Complete a rule that was done parsing, and
            promote previously pending rules'''
-        for row in chart.rows:
+        for row in chart.rows:    # 扫描当前chart的每一个earley state
             if row.is_complete():
                 completed = row.rule.lhs
                 for r in self.charts[row.start].rows:

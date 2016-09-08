@@ -8,14 +8,14 @@
 
 tree_one = [1]
 
-带一个branches
+带一个branche
 tree_two = [1, [2]]
 
 带2个branches
 tree_three = [1, [2], [1]]
 
 
-由此可见我们这里把tree定义为带1~3个元素的list. 在这个假设下, 
+由此可见我们这里把tree定义为带1~若干个元素的list, 其中第一个元素是tree node的值，后面的元素是sub tree(branch). 在这个假设下, 
 [1, 2]
 不是tree. 因为第二个元素是branch, 根据定义, branch必须是tree, 所以必须是list.
 

@@ -4,8 +4,8 @@
 
 import sys
 from grammar import *
-from sentence import *
 from parser import *
+from sentence import *
 from parse_trees import *
 
 def run():
@@ -27,18 +27,19 @@ def run():
     debug = len(sys.argv)==4 and sys.argv[3] == '--debug'
 
     # run parser
-    earley = Parser(grammar, sentence, debug)
+    earley = Parser(grammar, sentence, debug)  
+    # 建立一个Parser对象，并调用此对象的parse方法
     earley.parse()
 
     # output sentence validity
     if earley.is_valid_sentence():
-        print '==> Sentence is valid.'
+        print ('==> Sentence is valid.')
 
-        trees = ParseTrees(earley)
-        print 'Valid parse trees:'
-        print trees
+        trees = ParseTrees(earley)             # 将这个parser对象传入ParseTrees，以打印AST的结构.
+        print ('Valid parse trees:')
+        print (trees)
     else:
-        print '==> Sentence is invalid.'
+        print ('==> Sentence is invalid.')
 
 if __name__ == '__main__':
     run()
