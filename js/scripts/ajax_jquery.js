@@ -1,7 +1,0 @@
-$.ajax({
-    url: "test.html",
-    context: document.body,
-    success: function(){
-      $(this).addClass("done");
-    }
-});

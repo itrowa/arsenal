@@ -154,3 +154,11 @@ $RECYCLE.BIN/
 
 # Mac desktop service store files
 .DS_Store
+
+
+# =========================
+# node.js modules 
+# =========================
+
+# npm local installed modules
+node_modules/

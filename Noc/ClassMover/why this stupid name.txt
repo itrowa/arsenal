@@ -1,1 +1,0 @@
-http://stackoverflow.com/questions/17379921/processing-java-error-the-nested-type-node-cannot-hide-an-enclosing-type
