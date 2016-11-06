@@ -1,14 +1,15 @@
-# 基于线性探测法的Hash表
+# Symbol Table: 基于线性探测法的Hash表
 
 # 实现: 两队平行数组, 一个存储keys, 一个存储values, 遇到冲突项, 往指针变大的方向继续放.
+# 数组大小动态扩展: 总是让占用率在1/8 ~ 1/2之间.
 
-# @todo: 验证get和delete的正确性; , 数组动态扩展, 验证性能
+# @todo: 验证正确性!
 
 class LinearProbingHashST:
 
-    def __init__(self, M=16):
-        self.N = 0                              # key-value pair的个数
-        self.M = M                              # 取一个固定值(在例子中就是16)
+    def __init__(self, M=4):
+        self.N = 0                              # 已存放的数据(key-value pair)的个数
+        self.M = M                              # 线性探测表的长度 . 取一个固定值(对动态数组, 是4)
         self.keys = [None] * self.M                  # 存放keys 的数组
         self.values = [None] * self.M                # 存放values 的数组
 
@@ -29,42 +30,46 @@ class LinearProbingHashST:
         return s
 
     def delete(self, key):
+        if (not self.contains(key)):
+            return None
         i = self.gethash(key)
 
-        def i_next(i):
-            # 计算下标i的下一项.
-            return (i+1) % self.M
-
-        # while循环: 从i开始查找对应项, 如找到就执行删除并左移
-        # 剩余的同hash key, 若一直查找到None则证明无此key.
-        while(self.keys[i] != None):
-            if self.keys[i] == key:
-                #直接删除
-                self.values[i] = None
-                #把右边同hash的key左移
-                while self.keys(i_next(i)) != None:
-                    self.keys[i] = self.keys[i_next]
-                    self.values[i] = self.values[i_next]
-                    i = i_next(i)
-                return
+        while(self.keys[i] != key):     # 找到存储要删除的key的数组下标
             i = (i + 1) % self.M
+
+        self.keys[i] = None             # 将要删除的key和value的数组元素置空
+        self.values[i] = None
+        i = (i + 1) % self.M
+        while self.keys[i] != None:          # 针对key的下标后面的每个数据:
+            keyToRedo = self.keys[i]         # 将数据置空 并重新put此数据
+            valToRedo = self.values[i]
+            self.keys[i] = None
+            self.values[i] = None
+            self.N -= 1
+            self.put(keyToRedo, valToRedo)
+            i = (i + 1) % self.M
+        self.N =- 1
+
+        if self.N > 0 and self.N == self.M // 8:
+            resize(self.M // 2)
+        # note: 保证线性探测表的占用率不低于1/8.
 
     def get(self, key):
         i = self.gethash(key)
         while(self.keys[i] != None):
             if key == self.keys[i]:
                 return self.values[i]
-            i = (i+1) % self.M
+            else:
+                i = (i+1) % self.M
         return None
         
 
     def put(self, key, value):
+        """ put at index i if free; if not try i+1, i+2,... and loop back to 0, 1,..etc
         """
-        put at index i if free; if not try i+1, i+2,... and loop back to 0, 1,..etc
-        """
-        # 注意先resize
-        # if (self.N >= self.M/2):
-        #     resize(2*self.M)
+        if (self.N >= self.M/2):
+            self.resize(2*self.M)
+        # note: 保证线性探测表的占用率不超过1/2.
 
         index = self.gethash(key)
         # 1. index位置元素为空, 直接放入
@@ -90,18 +95,33 @@ class LinearProbingHashST:
         return (hash(key) & 0x7fffffff) % self.M
         # 剔除符号位.
 
+    def contains(self, key):
+        return self.get(key) != None
+
+    def resize(self, cap):
+        """ 将keys[]和values[]扩大或者缩小到指定长度. """
+        t = LinearProbingHashST(cap)
+        for i in range(self.M):
+            if(self.keys[i] != None):
+                t.put(self.keys[i], self.values[i])
+            self.keys = t.keys
+            self.values = t.values
+            self.M = t.M
+        # note: 不能直接复制数组 而要用put 方法, 因为key的hash值取决于线性探测表数组的大小.
+        # 线性探测表长度变化后, 所有的数据都要重新进行put操作.
+
 if __name__ == "__main__":
-    lphst = LinearProbingHashST()       # 课本上的例子就是长度为5
-    lphst.put("S", 0)
-    lphst.put("E", 1)
-    lphst.put("A", 2)
-    lphst.put("R", 3)
-    lphst.put("C", 4)
-    lphst.put("H", 5)
-    lphst.put("E", 6)
-    lphst.put("X", 7)
-    lphst.put("A", 8)
-    lphst.put("M", 9)
-    lphst.put("P", 10)
-    lphst.put("L", 11)
-    lphst.put("E", 12)
+    st = LinearProbingHashST()       # 课本上的例子就是长度为5
+    # st.put("S", 0)
+    # st.put("E", 1)
+    # st.put("A", 2)
+    # st.put("R", 3)
+    # st.put("C", 4)
+    # st.put("H", 5)
+    # st.put("E", 6)
+    # st.put("X", 7)
+    # st.put("A", 8)
+    # st.put("M", 9)
+    # st.put("P", 10)
+    # st.put("L", 11)
+    # st.put("E", 12)

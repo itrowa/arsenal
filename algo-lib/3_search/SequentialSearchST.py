@@ -1,11 +1,8 @@
 # 利用(无序)链表构建有序符号表
 
-# 实现: 使用一个无序链表, 每个节点储存一对key和value.新加入的key-value对插入至表头. 查找也是从表头开始寻找.
+# 实现: 使用一个无序链表, 每个node储存key和对应的value. 新加入的node插入至表头. 查找也是从表头开始寻找.
 
-# 难点: 基本没有, 会写链表就行, 注意删除操作.
-
-# @todo: delete方法和其他api, __repr__()遇到大型数据时递归深度溢出的问题
-#        能不能创建一个空的 或者实现只声明 而没有实际内容的效果? 散列表就可以创建空的表.
+# @todo: __repr__()遇到大型数据时递归深度溢出的问题
 
 # 一个节点含有两个属性和一个next指针的链表Node类
 class Node:
@@ -30,23 +27,23 @@ class SequentialSearchST:
 
     empty = ()
 
-    def __init__(self, key, value):
-        self.node = Node(key, value)
+    def __init__(self):
+        node = Node(Node.empty, Node.empty)         # 一个哨兵node
+        self.first = Node(Node.empty, Node.empty)   # 第一个Node的指针.指向刚才的哨兵node.
+        self.N = 0                                  # size of ST
 
     def __repr__(self):
-        return self.node.__repr__()
+        return self.first.__repr__()
 
     def __getitem__(self, key):
-        """
-        使支持下标访问
-        """
+        """ 使支持下标访问 """
         # st['C']       103
         return self.get(key)
 
     # 查找给定的key并返回对应的value
     def get(self, key):
-        x = self.node
-        while(x != Node.empty):
+        x = self.first
+        while(x.key != Node.empty):
             if (x.key == key):
                 return x.value
             x = x.next
@@ -54,25 +51,41 @@ class SequentialSearchST:
             
     # 查找给定的key并更新其值, 若不在ST中则新建一个node
     def put(self, key, val):
-        x = self.node
-        while(x != Node.empty):
+
+        x = self.first
+        while(x.key != Node.empty):
             if (x.key == key):
                 x.value = val
                 return
             x = x.next
-        newNode = Node(key, val, self.node)
-        self.node = newNode
+        nod = Node(key, val, self.first)
+        self.first = nod 
 
     def delete(self, key):
-        self.put(key, None)
+        # reset whole linked list using help func.
+        self.first = self.delhelp(self.first, key)
+
+    def delhelp(self, x, key):
+        """ del a node by resetting a link list from node x"""
+        if x == Node.empty:
+            return None
+        elif x.key == key:
+            return x.next
+        else:
+            x.next = self.delhelp(x.next, key)
+            return x
 
     def contains(self, key):
         return self.get(key) != None
 
+    def size(self):
+        return self.N
+
 
 # test case:
 if __name__ == "__main__":
-    st = SequentialSearchST('A', 101)
+    st = SequentialSearchST()
+    st.put('A', 101)
     st.put('B', 102)
     st.put('B', 108)
     st.put('C', 103)

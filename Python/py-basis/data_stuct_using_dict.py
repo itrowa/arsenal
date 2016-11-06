@@ -1,9 +1,8 @@
 # dict
 # 是key-value 的 pair. 这些pair的 order是不确定的,没有先后顺序的.尽管写起来是有先后顺序的.
 
-######################################
 # 创建
-######################################
+# #####################################
 # "声明" 一个空的dict(实际是引用一个空dict)
 d1 = {}
 
@@ -14,15 +13,13 @@ numerals = {'I': 1.0,
             'X': 10
            }
 
-######################################
 # print 
-######################################
+# #####################################
 # print
 print(numerals)
 
-######################################
 # 查询 
-######################################
+# #####################################
 # 取得一个Key的value:
 q = numerals['X']
 
@@ -38,6 +35,10 @@ if 'V' in numerals:
 # 查找value是否存在:
 # ...
 
+
+# 遍历
+# #####################################
+
 # 仅仅是获得dict的key名:(py3)
 list(numerals.keys())[0]
 # 先把所有的key名做成列表, 然后取出这个列表的第一个元素.
@@ -45,7 +46,7 @@ list(numerals.keys())[0]
 # 列出所有的Key:
 keys = []
 for key in numerals:
-    keys.append(k)
+    keys.append(key)
 
 numerals.items()  # 在py2下返回一个list, 在py3下返回一个view object.
 list(numerals.items()) # 在py3下, 将view object做成list即可达到和python2 一样的效果了.
@@ -61,9 +62,14 @@ list(numerals.items()) # 在py3下, 将view object做成list即可达到和pytho
 # previous versions, an additional call to list() has to be performed in 
 # Python 3 to "take a snapshot" of the view object contents.
 
-######################################
+# 列出key 和对应的value:
+for key in numerals:
+    print(key, numberls[key])
+
 #  修改 / 新增
-######################################
+# #####################################
+
 # 给Key设置新的Value, 或者增加新的pair:
 numerals['I'] = 1
 numerals['L'] = 50
+

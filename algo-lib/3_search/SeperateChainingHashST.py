@@ -8,17 +8,16 @@
 # 每次计算要插入的key的hash并作为数组st的index装入st的对应位置. 若有新的的key的hash值在st的同样的下标
 # , 按SequentialSearchST的put()方法继续插入即可.
 
-# python实现的难点:
-# 把初始化后的list装入M个空的SequentialSearchST的空对象.
-
-# @todo: get()
+# @todo: 正确性检验!
 
 from SequentialSearchST import *
 
 class SeperateChainingHashST:
     def __init__(self, M):
-        self.M = M                      # hash表大小
-        self.st = [None] * M                     # 一个"数组"用于符号表, 固定长度, 为M
+        self.M = M                      # hash表大小. algs4中例子使用997.质数.
+        self.st = [None] * M            # 一个"数组"用于符号表, 固定长度, 为M
+        for item in self.st:            # 将数组的每一个元素指向各自"空"的链表.
+            item = SequentialSearchST()
 
     def __repr__(self):
         """
@@ -38,17 +37,15 @@ class SeperateChainingHashST:
                 s += "[{0}] : {1}\n".format(i, item.__repr__())
         return s
 
-    def put(self, key, value):
-        index = self.gethash(key)
-        item = self.st[index]
-        if item == None:
-            self.st[index] = SequentialSearchST(key, value)
-        else:
-            self.st[index].put(key, value)
+    def put(self, key, val):
+        self.st[self.gethash(key)].put(key, val)
 
 
     def get(self, key):
         return self.st[self.gethash(key)].get(key)
+
+    def delete(self, key):
+        self.st[gethash(key)].delete(key)
 
     def gethash(self, key):
         """
@@ -56,6 +53,7 @@ class SeperateChainingHashST:
         """
         return (hash(key) & 0x7fffffff) % self.M
         # 剔除符号位.
+        # b01111111111111111111111111111111
 
 # test client
 if __name__ == "__main__":

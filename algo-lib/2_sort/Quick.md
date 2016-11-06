@@ -1,3 +1,5 @@
+# quick sort / 快速排序
+
 快速排序使用分治法（Divide and conquer）策略来把一个序列（list）分为两个子序列（sub-lists）。
 
 步骤为：

@@ -1,6 +1,6 @@
 # 利用对数组进行二分查找的方式完成符号表功能.
 
-# 数据结构实现：一对平行的数组，一个存储keys的值，一个存储value的值. 使用二分查找法.
+# 数据结构实现：一对平行的数组，一个存储keys的值，一个存储value的值. key数组中的key是有序的. 而查找key则使用二分查找法.
 
 # 二分查找(rank()函数): 在数组中引入low, mid, hi 3个指针, 把要比较的key和mid处的key比较, 然后得到了
 # 包含key所在的区间, 于是把另外一半扔掉. 继续递归, 直到遇到key和mid相等,或者...
@@ -42,6 +42,7 @@ class BinarySearchST:
         self.N += 1
 
     # def delete(key):
+    # @todo
 
 
     # 返回比key小的key的数量.
@@ -50,11 +51,18 @@ class BinarySearchST:
         while (lo <= hi):
             mid = lo + (hi - lo) // 2
             if (key < self.keys[mid]):
-                # @ todo: 书上P241使用的是compareto方法，返回的是大于或者小于0的值.
-                # 优劣？我要修改代码吗?
                 hi = mid - 1
-            else if (key > self.keys[mid]):
+            elif (key > self.keys[mid]):
                 lo = mid + 1
             else:
                 return mid
         return lo
+
+    def min(self):
+        return keys[0]
+
+    def max(self):
+        return keys[N-1]
+
+    def select(self, k):
+        return keys[k]

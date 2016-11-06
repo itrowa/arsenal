@@ -16,14 +16,10 @@ if __name__ == "__main__":
     infile.close()
 
     # 统计单词出现次数并装入symbol table. 
-    # @todo: 如何更好地申明一个空的symbol table? 像java代码那样只申明不装入东西？
     
-    # st = SequentialSearchST()
+    st = SequentialSearchST()
     for word in text:
-        if "st" not in globals():
-            st = SequentialSearchST(word, 1)
-            continue
-        elif (st.contains(word)):
+        if st.contains(word):
             st.put(word, st.get(word)+1)
         else:
             st.put(word, 1)
