@@ -5,7 +5,7 @@
 # 查找: 递归和树的node的key进行比较.然后根据结构再递归到左树或者右树.
 # 插入: ...
 
-# @todo: 验证性能; 实现有序ST的其他API. 例如 del
+# @todo: 验证性能; 实现有序ST的其他API: rank(), select(), floor(), keys()
 
 # test: python -i BST < tinyST.txt
  # *  A 8
@@ -53,12 +53,25 @@ class BST:
     def __repr__(self):
         return self.root.__repr__()
 
-    def size(self):
-        return self.size_help(self.root)
+    def print(self):
+        """ 打印所有的key """
+        self.printHelp(self.root)
 
-    def size_help(self, x):
+    def printHelp(self, x):
+        """ 中序遍历法 """
+        if x == Node.empty:
+            return
+        else:
+            self.printHelp(x.left)
+            print(x.key)
+            self.printHelp(x.right)
+
+    def size(self):
+        return self.sizeHelp(self.root)
+
+    def sizeHelp(self, x):
         """ 返回"""
-        if not x:
+        if x == Node.empty:
             return 0
         else:
             return x.N
@@ -100,58 +113,60 @@ class BST:
             else:
                 x.value = value
 
-        x.N = self.size_help(x.left) + self.size_help(x.right) + 1
+        x.N = self.sizeHelp(x.left) + self.sizeHelp(x.right) + 1
         return x
 
     def deleteMax():
+        # 和deleteMin()代码类似.
         pass
 
-    # @todo: correctness check! 
-    def deleteMin(self, x):
+    def deleteMin(self):
         """ 删除此树中key最小的node"""
-        return self.deleteMinHelp(root)
+        return self.deleteMinHelp(self.root)
+        # note: 对空的二叉树进行此操作将不产生任何效果.
 
     def deleteMinHelp(self, x):
         """ 删除以node x为根节点的tree的key最小的node."""
         if x.left == Node.empty:
             return x.right
         else:
-            x.left = deleteMin(self, x.left)
-            x.N = self.size(x.left) + self.size(x.right) + 1
+            x.left = self.deleteMinHelp(x.left)
+            x.N = self.sizeHelp(x.left) + self.sizeHelp(x.right) + 1
             return x
 
-    # @todo: correctness check!
     def delete(self, key):
         """ 删除key的node. """
-        self.root = self.deleteHelp(key, root)
+        self.root = self.deleteHelp(key, self.root)
 
     def deleteHelp(self, key, x):
         """ 删除一个以节点x为根的数中的键为x的node."""
+        print("> x is ", x)
         if x == Node.empty:
             return Node.empty
-        elif key == x.key:
+        elif key > x.key:
+            x.right = self.deleteHelp(key, x.right)
+        elif key < x.key:
+            x.left =  self.deleteHelp(key, x.left)
+        else : # key == x.key:
             if x.right == Node.empty or x.left == Node.empty:
                 return Node.empty
             else:
                 t = x
-                x = self.min(t.right)
+                x = self.minHelp(t.right)
                 x.right = self.deleteMinHelp(t.right)
                 x.left = t.left
-                return x
-        elif key > x.key:
-            return self.deleteHelp(self, key, x.right)
-        else:
-            return self.deleteHelp(self, key, x.left)
+        print("> done! x is ", x)
+        x.N = self.sizeHelp(x.left) + self.sizeHelp(x.right) + 1
+        return x
 
-    # @todo: correctness test
     def min(self):
-        return self.minHelp(x)
+        return self.minHelp(self.root).key
 
     def minHelp(self, x):
-        if x.left == null:
+        if x.left == Node.empty:
             return x
         else:
-            return minHelp(self, x.left)
+            return self.minHelp(x.left)
 
     def floor():
         pass
@@ -160,26 +175,32 @@ class BST:
         pass
 
     def keys():
+        pass
 
 
 if __name__ == "__main__":
-    import sys
+    # import sys
+
+    # st = BST()
+
+    # keys = sys.stdin.read().split()
+    # for i, key in enumerate(keys):
+    #     st.put(key, i)
+
+    # print(st)
+
+
+    # # 对node的测试
+    # n1=Node("N",2,1)
+    # nn =Node("A", 
+    #           1, 
+    #           3,
+    #           Node("B", 2,1),
+    #           Node("C", 3,1)
+    #           )
 
     st = BST()
-
-    keys = sys.stdin.read().split()
-    for i, key in enumerate(keys):
-        st.put(key, i)
-
-    print(st)
-
-
-    # 对node的测试
-    n1=Node("N",2,1)
-    nn =Node("A", 
-              1, 
-              3,
-              Node("B", 2,1),
-              Node("C", 3,1)
-              )
-
+    st.put("S", 0)
+    st.put("E", 1)
+    st.put("A", 2)
+    st.put("R", 3)
