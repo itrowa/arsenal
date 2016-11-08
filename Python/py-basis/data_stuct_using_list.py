@@ -91,3 +91,8 @@ i.__next__()
 i.__next__()
 # Traceback (most recent call last):
 # StopIteration
+
+
+
+# note: [] [None]
+# 是不同的. []是空的数组 [None]是分配了空元素的数组.

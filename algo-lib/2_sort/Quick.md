@@ -29,16 +29,20 @@
         sort array[startIndex, pivotIndex]
         sort array[pivotIndex+1, endIndex]
 
-循环不变式:
+# 循环不变式:
 
 - 切分操作的每一次迭代开始前, array中leftPart中的元素都小于pivot
 - 切分操作的每一次迭代开始前, array中leftPart+1到那个当前element的元素都大于Pivot
 - array中pivit的下标处元素等于pivot  
 
-正确性证明:
+# 正确性证明:
 
 1. 程序初始化时, leftPart和rightPart都不包含任何元素. 因此满足循环不变式.
 2. 每一轮迭代完后, leftPart的所有元素都小于pivot, rightPart所有元素都大于pivot. 要想清楚这一点，需要考虑每轮迭代中的两种情况： 如果当前element大于pivot, 则数组保持不变. 这个element保留在原地成为rightPart的一部分. 所以满足循环不变式. 如果当前element小于pivot, 则将这个element和leftPartLastIndex+1处的element交换. 交换完成后, leftPart部分所有的元素都小于pivot, rightPart部分所有的元素都大于pivot, 循环不变式成立.
 3. 程序终止时: 略.
 
 根据归纳原理, 程序是正确的.
+
+# 性能分析:
+
+(待编辑)
