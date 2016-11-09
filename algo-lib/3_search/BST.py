@@ -168,11 +168,58 @@ class BST:
         else:
             return self.minHelp(x.left)
 
-    def floor():
-        pass
+    def floor(self, key):
+        return self.floorHelp(key, self.root)
+
+    def floorHelp(self, key, x):
+        if x == Node.empty:
+            return Node.empty
+        elif key < x.key:
+            return self.floorHelp(key, x.left)
+        elif key == x.key:
+            return x.key
+        elif key > x.key:
+            t = self.floorHelp(key, x.right)
+            if t != Node.empty:
+                return t
+            else:
+                return x.key
 
     def ceiling():
         pass
+
+    def select(self, k):
+        """ 对于排名为k的key, 返回此node.(k=0是最小的key)"""
+        return self.selectHelp(k, self.root)
+
+    def selectHelp(self, k, x):
+        """ 对于在(子)树中排名为k的key,返回此node.(k=0是最小的key)"""
+        if x == Node.empty:
+            return Node.empty
+        else:
+            t = self.sizeHelp(x.left)
+            if t > k:
+                return self.selectHelp(k, x.left)
+            elif t < k:
+                return self.selectHelp(k-t-1, x.right)
+            else: # t == k
+                return x
+
+
+    def rank(self, key):
+        """ 返回给定的key在符号表中的排名(排名为0的最小)"""
+        return self.rankHelp(key, self.root)
+
+    def rankHelp(self, key, x):
+        """ 返回给定的key在(子)树x中的排名(排名为0的最小.)"""
+        if x == Node.empty:
+            return 0
+        elif key < x.key:
+            return self.rankHelp(key, x.left)
+        elif key > x.key:
+            return 1 + self.sizeHelp(x.left) + self.rankHelp(key, x.right)
+        else:   # key = x.key的情况
+            return self.sizeHelp(x.left)
 
     def keys():
         pass
